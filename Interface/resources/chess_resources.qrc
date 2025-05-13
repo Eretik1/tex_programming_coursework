@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="img/pawnW.png">D:/projects/tex_programming/coursework/img/pawnW.png</file>
+    <file alias="img/pawnB.png">D:/projects/tex_programming/coursework/img/pawnB.png</file>
+    <file alias="img/castleW.png">D:/projects/tex_programming/coursework/img/castleW.png</file>
+    <file alias="img/castleB.png">D:/projects/tex_programming/coursework/img/castleB.png</file>
+    <file alias="img/knightW.png">D:/projects/tex_programming/coursework/img/knightW.png</file>
+    <file alias="img/knightB.png">D:/projects/tex_programming/coursework/img/knightB.png</file>
+    <file alias="img/bishopW.png">D:/projects/tex_programming/coursework/img/bishopW.png</file>
+    <file alias="img/bishopB.png">D:/projects/tex_programming/coursework/img/bishopB.png</file>
+    <file alias="img/queenW.png">D:/projects/tex_programming/coursework/img/queenW.png</file>
+    <file alias="img/queenB.png">D:/projects/tex_programming/coursework/img/queenB.png</file>
+    <file alias="img/kingW.png">D:/projects/tex_programming/coursework/img/kingW.png</file>
+    <file alias="img/kingB.png">D:/projects/tex_programming/coursework/img/kingB.png</file>
+  </qresource>
+</RCC>
