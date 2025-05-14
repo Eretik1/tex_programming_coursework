@@ -30,5 +30,7 @@ public:
 
 private:
     std::vector<std::vector<std::unique_ptr<figure>>> board;
+    bool canCastle(int x1, int y1, int x2, int y2) const;
+    bool isSquareUnderAttack(int x, int y, bool byBlack) const;
     bool blackTurn = false;
 };

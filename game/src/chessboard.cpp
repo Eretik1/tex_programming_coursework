@@ -129,8 +129,43 @@ void chessboard::moveSquare(int x1, int y1, int x2, int y2) {
         return;
     }
 
+    // Проверка на рокировку
+    if (auto* kingPtr = dynamic_cast<king*>(board[x1][y1].get())) {
+        if (abs(x2 - x1) == 2 && y1 == y2) {
+            if (canCastle(x1, y1, x2, y2)) {
+                int direction = (x2 > x1) ? 1 : -1;
+                int rookX = (direction > 0) ? 7 : 0;
+                int newRookX = x1 + direction;
+                
+                // Перемещаем ладью
+                board[newRookX][y1] = std::move(board[rookX][y1]);
+                board[newRookX][y1]->setPosition(newRookX, y1);
+                if (auto* rookPtr = dynamic_cast<castle*>(board[newRookX][y1].get())) {
+                    rookPtr->setMoved(true);
+                }
+                
+                // Перемещаем короля
+                board[x2][y2] = std::move(board[x1][y1]);
+                board[x2][y2]->setPosition(x2, y2);
+                kingPtr->setMoved(true);
+                
+                switchTurn();
+                return;
+            }
+        }
+    }
+
+    // Обычный ход
     if (board[x1][y1]->move(x2, y2, board)) {
-        addFigure(x2, y2, std::move(board[x1][y1]));
+        // Помечаем фигуру как перемещенную
+        if (auto* kingPtr = dynamic_cast<king*>(board[x1][y1].get())) {
+            kingPtr->setMoved(true);
+        }
+        if (auto* rookPtr = dynamic_cast<castle*>(board[x1][y1].get())) {
+            rookPtr->setMoved(true);
+        }
+        
+        board[x2][y2] = std::move(board[x1][y1]);
         board[x2][y2]->setPosition(x2, y2);
         board[x1][y1] = nullptr;
         switchTurn();
@@ -145,4 +180,52 @@ bool chessboard::isBlackTurn() const {
 
 void chessboard::switchTurn() {
     blackTurn = !blackTurn;
+}
+
+bool chessboard::canCastle(int x1, int y1, int x2, int y2) const {
+    // Проверяем, что это король и он не двигался
+    auto* kingPtr = dynamic_cast<king*>(board[x1][y1].get());
+    if (!kingPtr || kingPtr->hasMoved()) return false;
+
+    // Определяем направление рокировки
+    int direction = (x2 > x1) ? 1 : -1;
+    int rookX = (direction > 0) ? 7 : 0;
+
+    // Проверяем, что на краю есть ладья того же цвета
+    if (!board[rookX][y1] || !dynamic_cast<castle*>(board[rookX][y1].get())) 
+        return false;
+    
+    auto* rookPtr = dynamic_cast<castle*>(board[rookX][y1].get());
+    if (rookPtr->hasMoved() || rookPtr->isBlack() != kingPtr->isBlack())
+        return false;
+
+    // Проверяем, что путь свободен
+    for (int x = x1 + direction; x != rookX; x += direction) {
+        if (board[x][y1] != nullptr) return false;
+    }
+
+    if (isSquareUnderAttack(x1, y1, !board[x1][y1]->isBlack()))
+        return false;
+
+    // Проверяем, что король не проходит через атакованные клетки
+    
+    for (int x = x1; x != x2 + direction; x += direction) {
+        if (isSquareUnderAttack(x, y1, !board[x1][y1]->isBlack()))
+            return false;
+    }
+
+    return true;
+}
+
+bool chessboard::isSquareUnderAttack(int x, int y, bool byBlack) const {
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (board[i][j] && board[i][j]->isBlack() == byBlack) {
+                if (board[i][j]->move(x, y, board)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }

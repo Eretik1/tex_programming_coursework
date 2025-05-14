@@ -19,6 +19,11 @@ bool king::move(const int& X, const int& Y, const std::vector<std::vector<std::u
                 return true;
             }
         }
+        
+        // Проверка на рокировку (ход на 2 клетки по горизонтали)
+        if (!moved && Y == currentY && abs(X - currentX) == 2) {
+            return true; // Детали рокировки будут обработаны в moveSquare
+        }
     }
     return false;
 }
