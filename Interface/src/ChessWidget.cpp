@@ -119,28 +119,37 @@ void ChessWidget::drawCoordinates(QPainter& painter) {
     painter.setFont(QFont("Arial", 12));
     painter.setPen(Qt::black);
     
-    // ... (existing coordinate drawing code)
+    // ... координаты доски
     
-    QString turnText;
-    if (m_board->isCheckmate(false)) {
-        turnText = "Белые в мате!";
-    } else if (m_board->isCheckmate(true)) {
-        turnText = "Черные в мате!";
-    } else if (m_board->isCheck(false)) {
-        turnText = "Шах белому королю!";
-    } else if (m_board->isCheck(true)) {
-        turnText = "Шах черному королю!";
-    } else {
-        turnText = m_board->isBlackTurn() ? "Ход черных" : "Ход белых";
+    QString statusText;
+    if (m_board->isGameOver()) {
+        statusText = QString::fromStdString(m_board->getGameResult());
+        painter.setFont(QFont("Arial", 16, QFont::Bold));
+        painter.setPen(Qt::red);
+    }  
+    else if (m_board->isCheckmate(false)) {
+        statusText = "Мат белому королю!";
+    } 
+    else if (m_board->isCheckmate(true)) {
+        statusText = "Мат черному королю!";
+    }
+    else if (m_board->isCheck(false)) {
+        statusText = "Шах белому королю!";
+    } 
+    else if (m_board->isCheck(true)) {
+        statusText = "Шах черному королю!";
+    } 
+    else {
+        statusText = m_board->isBlackTurn() ? "Ход черных" : "Ход белых";
     }
     
-    QRect turnRect(
+    QRect statusRect(
         m_boardRect.left(),
         m_boardRect.bottom() + 30,
         BOARD_SIZE,
-        20
+        30
     );
-    painter.drawText(turnRect, Qt::AlignCenter, turnText);
+    painter.drawText(statusRect, Qt::AlignCenter, statusText);
 }
 
 QRect ChessWidget::cellRect(int x, int y) const {
@@ -153,6 +162,10 @@ QRect ChessWidget::cellRect(int x, int y) const {
 }
 
 void ChessWidget::mousePressEvent(QMouseEvent* event) {
+    if (!m_board || event->button() != Qt::LeftButton || m_board->isGameOver()) {
+        return; // Игра окончена, ходы невозможны
+    }
+
     if (!m_board || event->button() != Qt::LeftButton) 
         return;
     
@@ -214,31 +227,27 @@ void ChessWidget::resizeEvent(QResizeEvent* event) {
 void ChessWidget::drawKingHighlight(QPainter& painter) {
     if (!m_board) return;
     
-    // Check if white king is in check/mate
-    auto whiteKingPos = m_board->findKing(false);
-    if (whiteKingPos.first != -1) {
-        if (m_board->isCheckmate(false)) {
-            // Checkmate - red highlight
-            painter.fillRect(cellRect(whiteKingPos.first, whiteKingPos.second), 
-                           QColor(255, 0, 0, 100));
-        } else if (m_board->isCheck(false)) {
-            // Check - pink highlight
-            painter.fillRect(cellRect(whiteKingPos.first, whiteKingPos.second), 
-                           QColor(255, 182, 193, 100));
+    auto drawHighlight = [&](bool isBlack, const QColor& color) {
+        auto kingPos = m_board->findKing(isBlack);
+        if (kingPos.first != -1) {
+            QRect rect = cellRect(kingPos.first, kingPos.second);
+            painter.fillRect(rect, color);
+            painter.setPen(QPen(Qt::black, 2));
+            painter.drawRect(rect);
         }
+    };
+    
+    if (m_board->isCheckmate(false)) {
+        drawHighlight(false, QColor(255, 0, 0, 150)); // Красный для мата
+    } 
+    else if (m_board->isCheck(false)) {
+        drawHighlight(false, QColor(255, 182, 193, 150)); // Розовый для шаха
     }
     
-    // Check if black king is in check/mate
-    auto blackKingPos = m_board->findKing(true);
-    if (blackKingPos.first != -1) {
-        if (m_board->isCheckmate(true)) {
-            // Checkmate - red highlight
-            painter.fillRect(cellRect(blackKingPos.first, blackKingPos.second), 
-                           QColor(255, 0, 0, 100));
-        } else if (m_board->isCheck(true)) {
-            // Check - pink highlight
-            painter.fillRect(cellRect(blackKingPos.first, blackKingPos.second), 
-                           QColor(255, 182, 193, 100));
-        }
+    if (m_board->isCheckmate(true)) {
+        drawHighlight(true, QColor(255, 0, 0, 150)); // Красный для мата
+    } 
+    else if (m_board->isCheck(true)) {
+        drawHighlight(true, QColor(255, 182, 193, 150)); // Розовый для шаха
     }
 }

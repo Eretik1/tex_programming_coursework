@@ -96,13 +96,12 @@ bool chessboard::hasLegalMoves(bool forBlack) {
 }
 
 bool chessboard::isCheckmate(bool forBlack) {
-    // Сначала проверяем, есть ли шах
-    if (!isCheck(forBlack)) {
-        return false;
+    bool checkmate = isCheck(forBlack) && !hasLegalMoves(forBlack);
+    if (checkmate) {
+        gameOver = true;
+        gameResult = forBlack ? "Белые победили!" : "Черные победили!";
     }
-    
-    // Затем проверяем, есть ли легальные ходы
-    return !hasLegalMoves(forBlack);
+    return checkmate;
 }
 
 bool chessboard::isStalemate(bool forBlack) {
@@ -243,6 +242,11 @@ void chessboard::setupInitialPosition() {
 }
 
 bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
+    if (gameOver) {
+        std::cout << "Игра окончена. " << gameResult << std::endl;
+        return false;
+    }
+
     if (!isValidPosition(x1, y1) || !isValidPosition(x2, y2)) {
         std::cout << "Invalid coordinates!" << std::endl;
         return false;
@@ -331,7 +335,7 @@ bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
         if (auto* rookPtr = dynamic_cast<castle*>(board[x2][y2].get())) {
             rookPtr->setMoved(true);
         }
-        
+        isCheckmate(!blackTurn);
         switchTurn();
         return true;
     } else {
@@ -355,4 +359,12 @@ std::pair<int, int> chessboard::findKing(bool isBlack) const {
         }
     }
     return {-1, -1}; // Не должно происходить в нормальной игре
+}
+
+bool chessboard::isGameOver() const {
+    return gameOver;
+}
+
+std::string chessboard::getGameResult() const {
+    return gameResult;
 }

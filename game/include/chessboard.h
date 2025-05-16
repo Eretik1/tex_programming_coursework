@@ -6,6 +6,7 @@
 #include <random>
 #include <chrono>
 #include <functional>
+#include <string>
 #include "../../pieces/include/figure.h"
 #include "../../pieces/include/pawn.h"
 #include "../../pieces/include/castle.h"
@@ -32,6 +33,9 @@ public:
     bool isValidPosition(int x, int y) const;
     bool isKingInCheck(bool isBlack) const;
     std::pair<int, int> findKing(bool isBlack) const;
+    bool isGameOver() const;
+    std::string getGameResult() const;
+
 
 private:
     std::vector<std::vector<std::unique_ptr<figure>>> board;
@@ -40,4 +44,6 @@ private:
     bool hasLegalMoves(bool forBlack);
     bool blackTurn = false;
     std::pair<int, int> enPassantTarget = {-1, -1}; // Поле для взятия на проходе
+    bool gameOver = false;
+    std::string gameResult;
 };

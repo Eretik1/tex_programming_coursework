@@ -26,6 +26,7 @@ private:
     QRect m_boardRect;
     QMap<QString, QPixmap> pieceImages; 
 
+
     void drawChessboard(QPainter& painter);
     void drawPieces(QPainter& painter);
     void drawSelection(QPainter& painter);  
@@ -33,5 +34,6 @@ private:
     QRect cellRect(int x, int y) const;
     void loadPieceImages();
     void drawKingHighlight(QPainter& painter);
+  
     
 };
