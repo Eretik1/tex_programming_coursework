@@ -19,6 +19,7 @@ private:
     ColorSelectionMenu *colorMenu;
     ChessWidget *chessWidget;
     chessboard *gameBoard;
+    chessboard* createNewGameBoard();
 
     void setupConnections();
     void initializeWidgets();

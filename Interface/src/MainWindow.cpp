@@ -22,7 +22,7 @@ void MainWindow::initializeWidgets()
     chessWidget = new ChessWidget();
     
     chessWidget->setChessboard(gameBoard);
-    chessWidget->setMinimumSize(600, 600);
+    chessWidget->setMinimumSize(600, 650);
     
     stackedWidget->addWidget(mainMenu);    
     stackedWidget->addWidget(colorMenu);   
@@ -49,5 +49,9 @@ void MainWindow::setupConnections()
     
     connect(chessWidget, &ChessWidget::cellSelected, this, [this](int x, int y) {
         qDebug() << "Cell selected:" << x << y;
+    });
+
+    connect(chessWidget, &ChessWidget::gameEndRequested, this, [this]() {
+        stackedWidget->setCurrentWidget(mainMenu);
     });
 }

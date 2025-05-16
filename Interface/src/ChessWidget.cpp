@@ -3,15 +3,43 @@
 #include <QFileInfo>  
 #include <QPainter>
 #include <QPixmap>
+#include <QVBoxLayout> 
 
 const int BOARD_SIZE = 480;
 const int CELL_SIZE = BOARD_SIZE / 8;
 const int MARGIN = 30;
+const int BUTTON_HEIGHT = 50;
 
 ChessWidget::ChessWidget(QWidget *parent) : QWidget(parent) {
-    setMinimumSize(BOARD_SIZE + 2*MARGIN, BOARD_SIZE + 2*MARGIN);
+    setMinimumSize(BOARD_SIZE + 2*MARGIN, BOARD_SIZE + 2*MARGIN + 80); // Увеличили высоту для кнопки и статуса
     loadPieceImages();
+    setupUi();
 }
+
+void ChessWidget::setupUi() {
+    // Создаем кнопку "Завершить игру"
+    m_endGameButton = new QPushButton("Завершить игру", this);
+    m_endGameButton->setStyleSheet(
+        "QPushButton {"
+        "    background-color: #4a4a4a;"
+        "    color: white;"
+        "    border: none;"
+        "    padding: 15px 32px;"
+        "    text-align: center;"
+        "    text-decoration: none;"
+        "    font-size: 16px;"
+        "    margin: 4px 2px;"
+        "    border-radius: 8px;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: #5a5a5a;"
+        "}"
+    );
+    
+    // Соединяем кнопку с сигналом
+    connect(m_endGameButton, &QPushButton::clicked, this, &ChessWidget::gameEndRequested);
+}
+
 
 void ChessWidget::setChessboard(chessboard* board) {
     m_board = board;
@@ -22,21 +50,44 @@ void ChessWidget::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     
+    // Рассчитываем позицию доски
     m_boardRect = QRect(
         (width() - BOARD_SIZE) / 2,
-        (height() - BOARD_SIZE) / 2,
+        MARGIN,
         BOARD_SIZE,
         BOARD_SIZE
     );
     
+    // Область для статусного текста
+    m_statusRect = QRect(
+        m_boardRect.left(),
+        m_boardRect.bottom() + 10,
+        BOARD_SIZE,
+        30
+    );
+    
+    // Область для кнопки
+    m_buttonRect = QRect(
+        (width() - 200) / 2,  // Ширина кнопки примерно 200px
+        m_statusRect.bottom() + 20,
+        200,
+        50
+    );
+    
+    // Позиционируем кнопку
+    if (m_endGameButton) {
+        m_endGameButton->setGeometry(m_buttonRect);
+    }
+    
+    // Рисуем доску
     painter.translate(m_boardRect.topLeft());
-    
     drawChessboard(painter);
-    drawSelection(painter);  
-    drawKingHighlight(painter);  // Add this line
+    drawSelection(painter);
+    drawKingHighlight(painter);
     drawPieces(painter);
-    
     painter.resetTransform();
+    
+    // Рисуем координаты и статус
     drawCoordinates(painter);
 }
 
@@ -116,11 +167,8 @@ void ChessWidget::drawSelection(QPainter& painter) {
 }
 
 void ChessWidget::drawCoordinates(QPainter& painter) {
-    painter.setFont(QFont("Arial", 12));
-    painter.setPen(Qt::black);
-    
-    // ... координаты доски
-    
+    // ... (ваш существующий код для координат)
+
     QString statusText;
     if (m_board->isGameOver()) {
         statusText = QString::fromStdString(m_board->getGameResult());
@@ -143,13 +191,10 @@ void ChessWidget::drawCoordinates(QPainter& painter) {
         statusText = m_board->isBlackTurn() ? "Ход черных" : "Ход белых";
     }
     
-    QRect statusRect(
-        m_boardRect.left(),
-        m_boardRect.bottom() + 30,
-        BOARD_SIZE,
-        30
-    );
-    painter.drawText(statusRect, Qt::AlignCenter, statusText);
+    // Рисуем статусный текст
+    painter.setFont(QFont("Arial", 12));
+    painter.setPen(Qt::black);
+    painter.drawText(m_statusRect, Qt::AlignCenter, statusText);
 }
 
 QRect ChessWidget::cellRect(int x, int y) const {
@@ -221,6 +266,33 @@ void ChessWidget::mousePressEvent(QMouseEvent* event) {
 
 void ChessWidget::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
+    
+    // Пересчитываем геометрию при изменении размера
+    m_boardRect = QRect(
+        (width() - BOARD_SIZE) / 2,
+        MARGIN,
+        BOARD_SIZE,
+        BOARD_SIZE
+    );
+    
+    m_statusRect = QRect(
+        m_boardRect.left(),
+        m_boardRect.bottom() + 10,
+        BOARD_SIZE,
+        30
+    );
+    
+    m_buttonRect = QRect(
+        (width() - 200) / 2,
+        m_statusRect.bottom() + 20,
+        200,
+        50
+    );
+    
+    if (m_endGameButton) {
+        m_endGameButton->setGeometry(m_buttonRect);
+    }
+    
     update();
 }
 

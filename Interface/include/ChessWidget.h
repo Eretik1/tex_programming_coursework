@@ -1,6 +1,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QPushButton>  // Добавлено
 #include "../../game/include/chessboard.h"
 
 class ChessWidget : public QWidget {
@@ -11,7 +12,8 @@ public:
     void setChessboard(chessboard* board);
 
 signals:  
-    void cellSelected(int x, int y); 
+    void cellSelected(int x, int y);
+    void gameEndRequested();
     
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -24,8 +26,10 @@ private:
     int m_selectedX = -1;
     int m_selectedY = -1;
     QRect m_boardRect;
-    QMap<QString, QPixmap> pieceImages; 
-
+    QRect m_statusRect;  // Добавлено для области статуса
+    QRect m_buttonRect;  // Добавлено для области кнопки
+    QMap<QString, QPixmap> pieceImages;
+    QPushButton* m_endGameButton;
 
     void drawChessboard(QPainter& painter);
     void drawPieces(QPainter& painter);
@@ -34,6 +38,5 @@ private:
     QRect cellRect(int x, int y) const;
     void loadPieceImages();
     void drawKingHighlight(QPainter& painter);
-  
-    
+    void setupUi();
 };
