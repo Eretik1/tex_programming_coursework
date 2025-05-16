@@ -32,5 +32,6 @@ private:
     void drawCoordinates(QPainter& painter);
     QRect cellRect(int x, int y) const;
     void loadPieceImages();
+    void drawKingHighlight(QPainter& painter);
     
 };

@@ -33,6 +33,7 @@ void ChessWidget::paintEvent(QPaintEvent* event) {
     
     drawChessboard(painter);
     drawSelection(painter);  
+    drawKingHighlight(painter);  // Add this line
     drawPieces(painter);
     
     painter.resetTransform();
@@ -118,27 +119,21 @@ void ChessWidget::drawCoordinates(QPainter& painter) {
     painter.setFont(QFont("Arial", 12));
     painter.setPen(Qt::black);
     
-    for (int y = 0; y < 8; ++y) {
-        QRect rect(
-            m_boardRect.right() + 5,
-            m_boardRect.top() + y * CELL_SIZE + CELL_SIZE/2 - 10,
-            20,
-            20
-        );
-        painter.drawText(rect, Qt::AlignLeft, QString::number(8 - y));
+    // ... (existing coordinate drawing code)
+    
+    QString turnText;
+    if (m_board->isCheckmate(false)) {
+        turnText = "Белые в мате!";
+    } else if (m_board->isCheckmate(true)) {
+        turnText = "Черные в мате!";
+    } else if (m_board->isCheck(false)) {
+        turnText = "Шах белому королю!";
+    } else if (m_board->isCheck(true)) {
+        turnText = "Шах черному королю!";
+    } else {
+        turnText = m_board->isBlackTurn() ? "Ход черных" : "Ход белых";
     }
     
-    for (int x = 0; x < 8; ++x) {
-        QRect rect(
-            m_boardRect.left() + x * CELL_SIZE + CELL_SIZE/2 - 10,
-            m_boardRect.bottom() + 5,
-            20,
-            20
-        );
-        painter.drawText(rect, Qt::AlignTop, QString(QChar('a' + x)));
-    }
-    
-    QString turnText = m_board->isBlackTurn() ? "Ход черных" : "Ход белых";
     QRect turnRect(
         m_boardRect.left(),
         m_boardRect.bottom() + 30,
@@ -214,4 +209,36 @@ void ChessWidget::mousePressEvent(QMouseEvent* event) {
 void ChessWidget::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
     update();
+}
+
+void ChessWidget::drawKingHighlight(QPainter& painter) {
+    if (!m_board) return;
+    
+    // Check if white king is in check/mate
+    auto whiteKingPos = m_board->findKing(false);
+    if (whiteKingPos.first != -1) {
+        if (m_board->isCheckmate(false)) {
+            // Checkmate - red highlight
+            painter.fillRect(cellRect(whiteKingPos.first, whiteKingPos.second), 
+                           QColor(255, 0, 0, 100));
+        } else if (m_board->isCheck(false)) {
+            // Check - pink highlight
+            painter.fillRect(cellRect(whiteKingPos.first, whiteKingPos.second), 
+                           QColor(255, 182, 193, 100));
+        }
+    }
+    
+    // Check if black king is in check/mate
+    auto blackKingPos = m_board->findKing(true);
+    if (blackKingPos.first != -1) {
+        if (m_board->isCheckmate(true)) {
+            // Checkmate - red highlight
+            painter.fillRect(cellRect(blackKingPos.first, blackKingPos.second), 
+                           QColor(255, 0, 0, 100));
+        } else if (m_board->isCheck(true)) {
+            // Check - pink highlight
+            painter.fillRect(cellRect(blackKingPos.first, blackKingPos.second), 
+                           QColor(255, 182, 193, 100));
+        }
+    }
 }

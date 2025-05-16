@@ -54,42 +54,59 @@ bool chessboard::hasLegalMoves(bool forBlack) {
     for (int x1 = 0; x1 < 8; ++x1) {
         for (int y1 = 0; y1 < 8; ++y1) {
             if (board[x1][y1] && board[x1][y1]->isBlack() == forBlack) {
+                // Получаем все возможные ходы для фигуры
+                std::vector<std::pair<int, int>> possibleMoves;
                 for (int x2 = 0; x2 < 8; ++x2) {
                     for (int y2 = 0; y2 < 8; ++y2) {
-                        // Сохраняем текущее состояние
-                        auto original = std::move(board[x2][y2]);
-                        auto moving = std::move(board[x1][y1]);
-                        
-                        // Пробуем ход
-                        if (moving->move(x2, y2, board)) {
-                            board[x2][y2] = std::move(moving);
-                            bool inCheck = isCheck(forBlack);
-                            
-                            // Восстанавливаем состояние
-                            board[x1][y1] = std::move(board[x2][y2]);
-                            board[x2][y2] = std::move(original);
-                            
-                            if (!inCheck) {
-                                return true;
-                            }
-                        } else {
-                            // Восстанавливаем, если ход невалидный
-                            board[x1][y1] = std::move(moving);
-                            board[x2][y2] = std::move(original);
+                        if (board[x1][y1]->move(x2, y2, board)) {
+                            possibleMoves.emplace_back(x2, y2);
                         }
+                    }
+                }
+
+                // Проверяем каждый возможный ход
+                for (const auto& move : possibleMoves) {
+                    int x2 = move.first;
+                    int y2 = move.second;
+                    
+                    // Сохраняем состояние
+                    auto original = std::move(board[x2][y2]);
+                    auto moving = std::move(board[x1][y1]);
+                    
+                    // Делаем временный ход
+                    board[x2][y2] = std::move(moving);
+                    board[x2][y2]->setPosition(x2, y2);
+                    
+                    // Проверяем, остался ли король под шахом
+                    bool inCheck = isCheck(forBlack);
+                    
+                    // Отменяем ход
+                    board[x1][y1] = std::move(board[x2][y2]);
+                    board[x1][y1]->setPosition(x1, y1);
+                    board[x2][y2] = std::move(original);
+                    
+                    if (!inCheck) {
+                        return true; // Нашли хотя бы один допустимый ход
                     }
                 }
             }
         }
     }
-    return false;
+    return false; // Нет допустимых ходов
 }
 
 bool chessboard::isCheckmate(bool forBlack) {
-    return isCheck(forBlack) && !hasLegalMoves(forBlack);
+    // Сначала проверяем, есть ли шах
+    if (!isCheck(forBlack)) {
+        return false;
+    }
+    
+    // Затем проверяем, есть ли легальные ходы
+    return !hasLegalMoves(forBlack);
 }
 
 bool chessboard::isStalemate(bool forBlack) {
+    // Нет шаха, но нет и легальных ходов
     return !isCheck(forBlack) && !hasLegalMoves(forBlack);
 }
 
