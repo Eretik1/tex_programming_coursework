@@ -1,3 +1,4 @@
+
 #include "..\\include\\ChessWidget.h"
 #include <QFileInfo>  
 #include <QPainter>

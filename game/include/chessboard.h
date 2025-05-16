@@ -20,17 +20,24 @@ public:
     virtual ~chessboard() = default;
     const std::vector<std::vector<std::unique_ptr<figure>>>& getBoard() const;
     void addFigure(int X, int Y, std::unique_ptr<figure> fig);
-    void moveSquare(int x1, int y1, int x2, int y2);
+    bool moveSquare(int x1, int y1, int x2, int y2);
     bool isBlackTurn() const;
     void switchTurn();
-    void setupInitialPosition(); // Новый метод для начальной расстановки
+    void setupInitialPosition();
     void setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row);
     void setupMirroredRow(bool isWhite, int row);
-    
+    bool isCheck(bool forBlack) const;
+    bool isCheckmate(bool forBlack);
+    bool isStalemate(bool forBlack);
+    bool isValidPosition(int x, int y) const;
+    bool isKingInCheck(bool isBlack) const;
+    std::pair<int, int> findKing(bool isBlack) const;
 
 private:
     std::vector<std::vector<std::unique_ptr<figure>>> board;
     bool canCastle(int x1, int y1, int x2, int y2) const;
     bool isSquareUnderAttack(int x, int y, bool byBlack) const;
+    bool hasLegalMoves(bool forBlack);
     bool blackTurn = false;
+    std::pair<int, int> enPassantTarget = {-1, -1}; // Поле для взятия на проходе
 };

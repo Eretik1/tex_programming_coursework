@@ -1,4 +1,3 @@
-#pragma once
 #include <QWidget>
 #include <QPainter>
 #include <QMouseEvent>
