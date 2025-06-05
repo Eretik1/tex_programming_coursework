@@ -5,7 +5,7 @@ ColorSelectionMenu::ColorSelectionMenu(QWidget *parent) : QWidget(parent) {
     btnBlack = new QPushButton("Чёрные");
     btnBack = new QPushButton("Назад");
 
-    // Стилизация кнопок (аналогично главному меню)
+    
     QString buttonStyle = "QPushButton {"
                          "    background-color: #4a4a4a;"
                          "    color: white;"
@@ -21,7 +21,7 @@ ColorSelectionMenu::ColorSelectionMenu(QWidget *parent) : QWidget(parent) {
                          "    background-color: #5a5a5a;"
                          "}";
 
-    // Специальные стили для кнопок выбора цвета
+    
     QString whiteButtonStyle = buttonStyle + 
                               "QPushButton {"
                               "    background-color:rgb(255, 255, 255);"
@@ -51,10 +51,10 @@ ColorSelectionMenu::ColorSelectionMenu(QWidget *parent) : QWidget(parent) {
     layout->setAlignment(Qt::AlignCenter);
     layout->setSpacing(20);
 
-    // Тёмный фон как в главном меню
+    
     this->setStyleSheet("background-color: #2d2d2d;");
 
-    // Оригинальные соединения
+    
     connect(btnWhite, &QPushButton::clicked, [this]() { emit colorSelected(true); });
     connect(btnBlack, &QPushButton::clicked, [this]() { emit colorSelected(false); });
     connect(btnBack, &QPushButton::clicked, this, &ColorSelectionMenu::backRequested);

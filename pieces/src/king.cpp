@@ -12,7 +12,7 @@ bool king::move(const int& X, const int& Y, const std::vector<std::vector<std::u
     int currentX = getX();
     int currentY = getY();
 
-    // Проверка на обычный ход короля
+    
     if (X >= 0 && X <= 7 && Y >= 0 && Y <= 7) {
         if ((abs(X - currentX) <= 1 && abs(Y - currentY) <= 1)) {
             if (board[X][Y] == nullptr || board[X][Y]->isBlack() != isBlack()) {
@@ -20,9 +20,9 @@ bool king::move(const int& X, const int& Y, const std::vector<std::vector<std::u
             }
         }
         
-        // Проверка на рокировку (ход на 2 клетки по горизонтали)
+        
         if (!moved && Y == currentY && abs(X - currentX) == 2) {
-            return true; // Детали рокировки будут обработаны в moveSquare
+            return true; 
         }
     }
     return false;

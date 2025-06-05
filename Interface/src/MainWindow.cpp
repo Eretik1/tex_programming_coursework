@@ -33,7 +33,7 @@ void MainWindow::initializeWidgets()
 
 void MainWindow::setupConnections()
 {
-    // Оригинальные соединения
+    
     connect(mainMenu, &MainMenu::localGameRequested, this, [this]() {
         stackedWidget->setCurrentIndex(1);
     });

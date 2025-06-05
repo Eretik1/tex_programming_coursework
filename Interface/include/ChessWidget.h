@@ -1,7 +1,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QMouseEvent>
-#include <QPushButton>  // Добавлено
+#include <QPushButton>  
 #include "../../game/include/chessboard.h"
 
 class ChessWidget : public QWidget {
@@ -26,8 +26,8 @@ private:
     int m_selectedX = -1;
     int m_selectedY = -1;
     QRect m_boardRect;
-    QRect m_statusRect;  // Добавлено для области статуса
-    QRect m_buttonRect;  // Добавлено для области кнопки
+    QRect m_statusRect;  
+    QRect m_buttonRect;  
     QMap<QString, QPixmap> pieceImages;
     QPushButton* m_endGameButton;
 

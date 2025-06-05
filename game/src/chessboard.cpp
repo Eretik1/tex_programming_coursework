@@ -54,7 +54,6 @@ bool chessboard::hasLegalMoves(bool forBlack) {
     for (int x1 = 0; x1 < 8; ++x1) {
         for (int y1 = 0; y1 < 8; ++y1) {
             if (board[x1][y1] && board[x1][y1]->isBlack() == forBlack) {
-                // Получаем все возможные ходы для фигуры
                 std::vector<std::pair<int, int>> possibleMoves;
                 for (int x2 = 0; x2 < 8; ++x2) {
                     for (int y2 = 0; y2 < 8; ++y2) {
@@ -64,35 +63,30 @@ bool chessboard::hasLegalMoves(bool forBlack) {
                     }
                 }
 
-                // Проверяем каждый возможный ход
                 for (const auto& move : possibleMoves) {
                     int x2 = move.first;
                     int y2 = move.second;
                     
-                    // Сохраняем состояние
                     auto original = std::move(board[x2][y2]);
                     auto moving = std::move(board[x1][y1]);
                     
-                    // Делаем временный ход
                     board[x2][y2] = std::move(moving);
                     board[x2][y2]->setPosition(x2, y2);
                     
-                    // Проверяем, остался ли король под шахом
                     bool inCheck = isCheck(forBlack);
                     
-                    // Отменяем ход
                     board[x1][y1] = std::move(board[x2][y2]);
                     board[x1][y1]->setPosition(x1, y1);
                     board[x2][y2] = std::move(original);
                     
                     if (!inCheck) {
-                        return true; // Нашли хотя бы один допустимый ход
+                        return true; 
                     }
                 }
             }
         }
     }
-    return false; // Нет допустимых ходов
+    return false; 
 }
 
 bool chessboard::isCheckmate(bool forBlack) {
@@ -105,7 +99,7 @@ bool chessboard::isCheckmate(bool forBlack) {
 }
 
 bool chessboard::isStalemate(bool forBlack) {
-    // Нет шаха, но нет и легальных ходов
+
     return !isCheck(forBlack) && !hasLegalMoves(forBlack);
 }
 
@@ -123,12 +117,12 @@ bool chessboard::canCastle(int x1, int y1, int x2, int y2) const {
     if (rookPtr->hasMoved() || rookPtr->isBlack() != kingPtr->isBlack())
         return false;
     
-    // Проверяем, что между королем и ладьей нет фигур
+
     for (int x = x1 + direction; x != rookX; x += direction) {
         if (board[x][y1] != nullptr) return false;
     }
     
-    // Проверяем, что король не под шахом и не проходит через атакованные поля
+
     if (isSquareUnderAttack(x1, y1, !board[x1][y1]->isBlack()))
         return false;
         
@@ -141,21 +135,19 @@ bool chessboard::canCastle(int x1, int y1, int x2, int y2) const {
 }
 
 void chessboard::setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row) {
-    // Очищаем ряд
+
     for (int x = 0; x < 8; ++x) {
         board[x][row] = nullptr;
     }
     
-    // Расставляем ладьи по краям
+
     addFigure(0, row, std::make_unique<castle>(isWhite, 0, row));
     addFigure(7, row, std::make_unique<castle>(isWhite, 7, row));
-    
-    // Типы фигур для середины ряда
+
     enum PieceType { QUEEN, KNIGHT, BISHOP };
     std::vector<PieceType> middlePieces = {QUEEN, KNIGHT, BISHOP, KNIGHT, BISHOP};
     std::shuffle(middlePieces.begin(), middlePieces.end(), gen);
     
-    // Расставляем средние фигуры
     for (int i = 0; i < 5; ++i) {
         int x = i + 1;
         switch (middlePieces[i]) {
@@ -171,7 +163,6 @@ void chessboard::setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row) 
         }
     }
     
-    // Добавляем короля на оставшееся место
     for (int x = 1; x < 7; ++x) {
         if (!board[x][row]) {
             addFigure(x, row, std::make_unique<king>(isWhite, x, row));
@@ -179,7 +170,6 @@ void chessboard::setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row) 
         }
     }
     
-    // Проверяем, что есть оба слона (на светлых и темных клетках)
     bool lightBishop = false, darkBishop = false;
     for (int x = 0; x < 8; ++x) {
         if (auto* b = dynamic_cast<bishop*>(board[x][row].get())) {
@@ -188,22 +178,21 @@ void chessboard::setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row) 
         }
     }
     
-    // Если условие не выполнено - пересоздаем ряд
     if (!(lightBishop && darkBishop)) {
         setupFisherRandomRow(gen, isWhite, row);
     }
 }
 
 void chessboard::setupMirroredRow(bool isWhite, int row) {
-    // Очищаем ряд
+
     for (int x = 0; x < 8; ++x) {
         board[x][row] = nullptr;
     }
     
-    // Определяем ряд-источник для зеркалирования
+
     int sourceRow = (row == 0) ? 7 : 0;
     
-    // Копируем фигуры с зеркальным отражением
+
     for (int x = 0; x < 8; ++x) {
         int mirroredX = 7 - x;
         if (!board[x][sourceRow]) continue;
@@ -230,14 +219,13 @@ void chessboard::setupInitialPosition() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 gen(seed);
     
-    // Расставляем фигуры по правилам шахмат 960
-    setupFisherRandomRow(gen, true, 7);  // Белые фигуры
-    setupMirroredRow(false, 0);          // Черные фигуры (зеркально)
+
+    setupFisherRandomRow(gen, true, 7);  
+    setupMirroredRow(false, 0);          
     
-    // Расставляем пешки
     for (int x = 0; x < 8; ++x) {
-        addFigure(x, 1, std::make_unique<pawn>(false, x, 1)); // Черные пешки
-        addFigure(x, 6, std::make_unique<pawn>(true, x, 6));  // Белые пешки
+        addFigure(x, 1, std::make_unique<pawn>(false, x, 1)); 
+        addFigure(x, 6, std::make_unique<pawn>(true, x, 6));  
     }
 }
 
@@ -257,7 +245,7 @@ bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
         return false;
     }
 
-    // Обработка рокировки
+
     if (auto* kingPtr = dynamic_cast<king*>(board[x1][y1].get())) {
         if (abs(x2 - x1) == 2 && y1 == y2) {
             if (canCastle(x1, y1, x2, y2)) {
@@ -265,14 +253,12 @@ bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
                 int rookX = (direction > 0) ? 7 : 0;
                 int newRookX = x1 + direction;
                 
-                // Перемещаем ладью
                 board[newRookX][y1] = std::move(board[rookX][y1]);
                 board[newRookX][y1]->setPosition(newRookX, y1);
                 if (auto* rookPtr = dynamic_cast<castle*>(board[newRookX][y1].get())) {
                     rookPtr->setMoved(true);
                 }
                 
-                // Перемещаем короля
                 board[x2][y2] = std::move(board[x1][y1]);
                 board[x2][y2]->setPosition(x2, y2);
                 kingPtr->setMoved(true);
@@ -284,15 +270,12 @@ bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
         }
     }
 
-    // Обработка взятия на проходе
     if (auto* pawnPtr = dynamic_cast<pawn*>(board[x1][y1].get())) {
         if (enPassantTarget.first == x2 && enPassantTarget.second == y2 && 
             abs(x2 - x1) == 1 && (blackTurn ? y2 == y1 - 1 : y2 == y1 + 1)) {
-            // Удаляем пешку, которая берется на проходе
             board[x2][blackTurn ? y2 + 1 : y2 - 1] = nullptr;
         }
         
-        // Устанавливаем новую цель для взятия на проходе
         if (abs(y2 - y1) == 2) {
             enPassantTarget = {x2, (y1 + y2) / 2};
         } else {
@@ -302,33 +285,26 @@ bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
         enPassantTarget = {-1, -1};
     }
 
-    // Проверяем обычный ход
     if (board[x1][y1]->move(x2, y2, board)) {
-        // Проверяем, не оставляет ли ход короля под шахом
         auto temp = std::move(board[x2][y2]);
         board[x2][y2] = std::move(board[x1][y1]);
         bool inCheck = isCheck(blackTurn);
         
         if (inCheck) {
-            // Отменяем ход, если король остался под шахом
             board[x1][y1] = std::move(board[x2][y2]);
             board[x2][y2] = std::move(temp);
             std::cout << "Invalid move - king would be in check!" << std::endl;
             return false;
         }
         
-        // Удаляем временно сохраненную фигуру (если была)
         board[x2][y2]->setPosition(x2, y2);
-        
-        // Обработка превращения пешки
+
         if (auto* pawnPtr = dynamic_cast<pawn*>(board[x2][y2].get())) {
             if ((blackTurn && y2 == 7) || (!blackTurn && y2 == 0)) {
-                // Всегда превращаем в ферзя (в реальной игре нужно спрашивать игрока)
                 board[x2][y2] = std::make_unique<queen>(blackTurn, x2, y2);
             }
         }
-        
-        // Обновляем флаги для короля и ладьи
+
         if (auto* kingPtr = dynamic_cast<king*>(board[x2][y2].get())) {
             kingPtr->setMoved(true);
         }
@@ -358,7 +334,7 @@ std::pair<int, int> chessboard::findKing(bool isBlack) const {
             }
         }
     }
-    return {-1, -1}; // Не должно происходить в нормальной игре
+    return {-1, -1}; 
 }
 
 bool chessboard::isGameOver() const {

@@ -6,7 +6,7 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(parent) {
     btnOnlineGame = new QPushButton("Сетевая игра");
     btnQuit = new QPushButton("Выход");
 
-    // Стилизация кнопок (новый дизайн)
+    
     QString buttonStyle = "QPushButton {"
                           "    background-color: #4a4a4a;"
                           "    color: white;"
@@ -33,10 +33,10 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(parent) {
     layout->setAlignment(Qt::AlignCenter);
     layout->setSpacing(20);
 
-    // Установка тёмного фона (новый дизайн)
+    
     this->setStyleSheet("background-color: #2d2d2d;");
 
-    // Оригинальные соединения
+    
     connect(btnLocalGame, &QPushButton::clicked, this, &MainMenu::localGameRequested);
     connect(btnOnlineGame, &QPushButton::clicked, this, &MainMenu::onlineGameRequested);
     connect(btnQuit, &QPushButton::clicked, qApp, &QApplication::quit);

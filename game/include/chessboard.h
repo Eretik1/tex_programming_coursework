@@ -43,7 +43,7 @@ private:
     bool isSquareUnderAttack(int x, int y, bool byBlack) const;
     bool hasLegalMoves(bool forBlack);
     bool blackTurn = false;
-    std::pair<int, int> enPassantTarget = {-1, -1}; // Поле для взятия на проходе
+    std::pair<int, int> enPassantTarget = {-1, -1}; 
     bool gameOver = false;
     std::string gameResult;
 };

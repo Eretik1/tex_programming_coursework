@@ -11,13 +11,13 @@ const int MARGIN = 30;
 const int BUTTON_HEIGHT = 50;
 
 ChessWidget::ChessWidget(QWidget *parent) : QWidget(parent) {
-    setMinimumSize(BOARD_SIZE + 2*MARGIN, BOARD_SIZE + 2*MARGIN + 80); // Увеличили высоту для кнопки и статуса
+    setMinimumSize(BOARD_SIZE + 2*MARGIN, BOARD_SIZE + 2*MARGIN + 80); 
     loadPieceImages();
     setupUi();
 }
 
 void ChessWidget::setupUi() {
-    // Создаем кнопку "Завершить игру"
+   
     m_endGameButton = new QPushButton("Завершить игру", this);
     m_endGameButton->setStyleSheet(
         "QPushButton {"
@@ -36,7 +36,7 @@ void ChessWidget::setupUi() {
         "}"
     );
     
-    // Соединяем кнопку с сигналом
+   
     connect(m_endGameButton, &QPushButton::clicked, this, &ChessWidget::gameEndRequested);
 }
 
@@ -50,7 +50,7 @@ void ChessWidget::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     
-    // Рассчитываем позицию доски
+    
     m_boardRect = QRect(
         (width() - BOARD_SIZE) / 2,
         MARGIN,
@@ -58,7 +58,7 @@ void ChessWidget::paintEvent(QPaintEvent* event) {
         BOARD_SIZE
     );
     
-    // Область для статусного текста
+    
     m_statusRect = QRect(
         m_boardRect.left(),
         m_boardRect.bottom() + 10,
@@ -66,20 +66,20 @@ void ChessWidget::paintEvent(QPaintEvent* event) {
         30
     );
     
-    // Область для кнопки
+   
     m_buttonRect = QRect(
-        (width() - 200) / 2,  // Ширина кнопки примерно 200px
+        (width() - 200) / 2,  
         m_statusRect.bottom() + 20,
         200,
         50
     );
     
-    // Позиционируем кнопку
+   
     if (m_endGameButton) {
         m_endGameButton->setGeometry(m_buttonRect);
     }
     
-    // Рисуем доску
+    
     painter.translate(m_boardRect.topLeft());
     drawChessboard(painter);
     drawSelection(painter);
@@ -87,7 +87,7 @@ void ChessWidget::paintEvent(QPaintEvent* event) {
     drawPieces(painter);
     painter.resetTransform();
     
-    // Рисуем координаты и статус
+
     drawCoordinates(painter);
 }
 
@@ -167,7 +167,7 @@ void ChessWidget::drawSelection(QPainter& painter) {
 }
 
 void ChessWidget::drawCoordinates(QPainter& painter) {
-    // ... (ваш существующий код для координат)
+    
 
     QString statusText;
     if (m_board->isGameOver()) {
@@ -191,7 +191,7 @@ void ChessWidget::drawCoordinates(QPainter& painter) {
         statusText = m_board->isBlackTurn() ? "Ход черных" : "Ход белых";
     }
     
-    // Рисуем статусный текст
+    
     painter.setFont(QFont("Arial", 12));
     painter.setPen(Qt::black);
     painter.drawText(m_statusRect, Qt::AlignCenter, statusText);
@@ -208,7 +208,7 @@ QRect ChessWidget::cellRect(int x, int y) const {
 
 void ChessWidget::mousePressEvent(QMouseEvent* event) {
     if (!m_board || event->button() != Qt::LeftButton || m_board->isGameOver()) {
-        return; // Игра окончена, ходы невозможны
+        return; 
     }
 
     if (!m_board || event->button() != Qt::LeftButton) 
@@ -267,7 +267,6 @@ void ChessWidget::mousePressEvent(QMouseEvent* event) {
 void ChessWidget::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
     
-    // Пересчитываем геометрию при изменении размера
     m_boardRect = QRect(
         (width() - BOARD_SIZE) / 2,
         MARGIN,
@@ -310,16 +309,16 @@ void ChessWidget::drawKingHighlight(QPainter& painter) {
     };
     
     if (m_board->isCheckmate(false)) {
-        drawHighlight(false, QColor(255, 0, 0, 150)); // Красный для мата
+        drawHighlight(false, QColor(255, 0, 0, 150)); 
     } 
     else if (m_board->isCheck(false)) {
-        drawHighlight(false, QColor(255, 182, 193, 150)); // Розовый для шаха
+        drawHighlight(false, QColor(255, 182, 193, 150)); 
     }
     
     if (m_board->isCheckmate(true)) {
-        drawHighlight(true, QColor(255, 0, 0, 150)); // Красный для мата
+        drawHighlight(true, QColor(255, 0, 0, 150)); 
     } 
     else if (m_board->isCheck(true)) {
-        drawHighlight(true, QColor(255, 182, 193, 150)); // Розовый для шаха
+        drawHighlight(true, QColor(255, 182, 193, 150)); 
     }
 }
