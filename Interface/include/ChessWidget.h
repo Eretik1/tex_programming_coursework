@@ -10,6 +10,7 @@ public:
     explicit ChessWidget(QWidget *parent = nullptr);
     ~ChessWidget() override = default;
     void setChessboard(chessboard* board);
+    chessboard* getChessboard();
 
 signals:  
     void cellSelected(int x, int y);

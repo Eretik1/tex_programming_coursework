@@ -344,3 +344,4 @@ bool chessboard::isGameOver() const {
 std::string chessboard::getGameResult() const {
     return gameResult;
 }
+

@@ -18,8 +18,8 @@ private:
     MainMenu *mainMenu;
     ColorSelectionMenu *colorMenu;
     ChessWidget *chessWidget;
-    chessboard *gameBoard;
     chessboard* createNewGameBoard();
+    std::unique_ptr<chessboard> gameBoard;
 
     void setupConnections();
     void initializeWidgets();

@@ -35,6 +35,7 @@ public:
     std::pair<int, int> findKing(bool isBlack) const;
     bool isGameOver() const;
     std::string getGameResult() const;
+    
 
 
 private:

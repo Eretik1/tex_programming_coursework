@@ -129,7 +129,7 @@ void ChessWidget::loadPieceImages() {
 }
 
 void ChessWidget::drawPieces(QPainter& painter) {
-    if (!m_board) return;
+    if (!m_board || m_board->isGameOver()) return;
     
     const auto& board = m_board->getBoard();
     
@@ -207,6 +207,10 @@ QRect ChessWidget::cellRect(int x, int y) const {
 }
 
 void ChessWidget::mousePressEvent(QMouseEvent* event) {
+    if (!m_board || !m_board->getBoard().size() || event->button() != Qt::LeftButton || m_board->isGameOver()) {
+        return; 
+    }
+
     if (!m_board || event->button() != Qt::LeftButton || m_board->isGameOver()) {
         return; 
     }
@@ -296,7 +300,7 @@ void ChessWidget::resizeEvent(QResizeEvent* event) {
 }
 
 void ChessWidget::drawKingHighlight(QPainter& painter) {
-    if (!m_board) return;
+    if (!m_board || m_board->isGameOver()) return;
     
     auto drawHighlight = [&](bool isBlack, const QColor& color) {
         auto kingPos = m_board->findKing(isBlack);
@@ -321,4 +325,8 @@ void ChessWidget::drawKingHighlight(QPainter& painter) {
     else if (m_board->isCheck(true)) {
         drawHighlight(true, QColor(255, 182, 193, 150)); 
     }
+}
+
+chessboard* ChessWidget::getChessboard() {
+    return m_board;
 }

@@ -5,7 +5,7 @@
 MainWindow::MainWindow(QWidget *parent) 
     : QWidget(parent),
       stackedWidget(new QStackedWidget(this)),
-      gameBoard(new chessboard())
+      gameBoard(std::make_unique<chessboard>())
 {
     initializeWidgets();
     setupConnections();
@@ -15,13 +15,16 @@ MainWindow::MainWindow(QWidget *parent)
     setLayout(mainLayout);
 }
 
+
+
+
 void MainWindow::initializeWidgets()
 {
     mainMenu = new MainMenu();
     colorMenu = new ColorSelectionMenu();
     chessWidget = new ChessWidget();
     
-    chessWidget->setChessboard(gameBoard);
+    chessWidget->setChessboard(gameBoard.get());
     chessWidget->setMinimumSize(600, 650);
     
     stackedWidget->addWidget(mainMenu);    
@@ -35,6 +38,8 @@ void MainWindow::setupConnections()
 {
     
     connect(mainMenu, &MainMenu::localGameRequested, this, [this]() {
+        gameBoard = std::make_unique<chessboard>(); 
+        chessWidget->setChessboard(gameBoard.get());
         stackedWidget->setCurrentIndex(1);
     });
     
@@ -52,6 +57,12 @@ void MainWindow::setupConnections()
     });
 
     connect(chessWidget, &ChessWidget::gameEndRequested, this, [this]() {
+        gameBoard.reset(); 
         stackedWidget->setCurrentWidget(mainMenu);
     });
+}
+
+chessboard* MainWindow::createNewGameBoard()
+{
+    return new chessboard();
 }
