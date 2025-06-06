@@ -309,6 +309,13 @@ void ChessWidget::drawKingHighlight(QPainter& painter) {
             painter.fillRect(rect, color);
             painter.setPen(QPen(Qt::black, 2));
             painter.drawRect(rect);
+            
+            
+            if (m_board->isCheckmate(isBlack)) {
+                painter.setFont(QFont("Arial", CELL_SIZE/3, QFont::Bold));
+                painter.setPen(Qt::white);
+                painter.drawText(rect, Qt::AlignCenter, "МАТ");
+            }
         }
     };
     

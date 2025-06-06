@@ -89,18 +89,185 @@ bool chessboard::hasLegalMoves(bool forBlack) {
     return false; 
 }
 
-bool chessboard::isCheckmate(bool forBlack) {
-    bool checkmate = isCheck(forBlack) && !hasLegalMoves(forBlack);
-    if (checkmate) {
-        gameOver = true;
-        gameResult = forBlack ? "Белые победили!" : "Черные победили!";
+bool chessboard::hasBlockingMoves(bool forBlack) {
+    auto kingPos = findKing(forBlack);
+
+    std::vector<std::pair<int, int>> attackers;
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (board[i][j] && board[i][j]->isBlack() != forBlack) {
+                if (board[i][j]->move(kingPos.first, kingPos.second, board)) {
+                    attackers.emplace_back(i, j);
+                }
+            }
+        }
     }
-    return checkmate;
+    if (attackers.size() > 1) return false;
+    
+    for (int x1 = 0; x1 < 8; ++x1) {
+        for (int y1 = 0; y1 < 8; ++y1) {
+            if (board[x1][y1] && board[x1][y1]->isBlack() == forBlack) {
+                auto [ax, ay] = attackers[0];
+            }
+        }
+    }
+    
+    return false;
+}
+
+bool chessboard::kingCanMove(int x, int y, bool isBlack) {
+    
+    for (int dx = -1; dx <= 1; ++dx) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            if (dx == 0 && dy == 0) continue;
+            
+            int newX = x + dx;
+            int newY = y + dy;
+            
+            if (isValidPosition(newX, newY)) {
+                
+                if (board[x][y]->move(newX, newY, board)) {
+                    
+                    auto temp = std::move(board[newX][newY]);
+                    board[newX][newY] = std::move(board[x][y]);
+                    
+                    bool stillInCheck = isCheck(isBlack);
+                    
+                    
+                    board[x][y] = std::move(board[newX][newY]);
+                    board[newX][newY] = std::move(temp);
+                    
+                    if (!stillInCheck) {
+                        return true; 
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool chessboard::canBlockOrCapture(bool forBlack, std::pair<int, int> kingPos) {
+    
+    std::vector<std::pair<int, int>> attackers;
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (board[i][j] && board[i][j]->isBlack() != forBlack) {
+                if (board[i][j]->move(kingPos.first, kingPos.second, board)) {
+                    attackers.emplace_back(i, j);
+                }
+            }
+        }
+    }
+    
+    
+    if (attackers.size() > 1) return false;
+    
+    auto [ax, ay] = attackers[0];
+    
+    
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (board[i][j] && board[i][j]->isBlack() == forBlack) {
+                if (board[i][j]->move(ax, ay, board)) {
+                    
+                    auto temp = std::move(board[ax][ay]);
+                    board[ax][ay] = std::move(board[i][j]);
+                    
+                    bool stillInCheck = isCheck(forBlack);
+                    
+                    
+                    board[i][j] = std::move(board[ax][ay]);
+                    board[ax][ay] = std::move(temp);
+                    
+                    if (!stillInCheck) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    if (!dynamic_cast<knight*>(board[ax][ay].get())) {
+        
+        std::vector<std::pair<int, int>> path;
+        calculateAttackPath(ax, ay, kingPos.first, kingPos.second, path);
+        
+        
+        for (auto [bx, by] : path) {
+            for (int i = 0; i < 8; ++i) {
+                for (int j = 0; j < 8; ++j) {
+                    if (board[i][j] && board[i][j]->isBlack() == forBlack) {
+                        if (board[i][j]->move(bx, by, board)) {
+                            auto temp = std::move(board[ax][ay]);
+                            board[ax][ay] = std::move(board[i][j]);
+                    
+                            bool stillInCheck = isCheck(forBlack);
+                    
+                    
+                            board[i][j] = std::move(board[ax][ay]);
+                            board[ax][ay] = std::move(temp);
+                    
+                            if (!stillInCheck) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return false;
+}
+
+void chessboard::calculateAttackPath(int ax, int ay, int kx, int ky, 
+                                   std::vector<std::pair<int, int>>& path) {
+    if (ax == kx || ay == ky || abs(ax - kx) == abs(ay - ky)) {
+        
+        int dx = (kx > ax) ? 1 : (kx < ax) ? -1 : 0;
+        int dy = (ky > ay) ? 1 : (ky < ay) ? -1 : 0;
+        
+        int x = ax + dx;
+        int y = ay + dy;
+        
+        while (x != kx || y != ky) {
+            path.emplace_back(x, y);
+            x += dx;
+            y += dy;
+        }
+    }
+}
+
+bool chessboard::isCheckmate(bool forBlack) {
+    if (!isCheck(forBlack)) return false; 
+    
+    auto kingPos = findKing(forBlack);
+    
+    
+    if (kingCanMove(kingPos.first, kingPos.second, forBlack)) {
+        return false;
+    }
+    
+    
+    if (canBlockOrCapture(forBlack, kingPos)) {
+        return false;
+    }
+    
+    
+    gameOver = true;
+    gameResult = forBlack ? "Белые победили!" : "Черные победили!";
+    return true;
 }
 
 bool chessboard::isStalemate(bool forBlack) {
-
-    return !isCheck(forBlack) && !hasLegalMoves(forBlack);
+    if (isCheck(forBlack)) return false;
+    if (hasLegalMoves(forBlack)) return false;
+    
+    gameOver = true;
+    gameResult = "Ничья!";
+    return true;
 }
 
 bool chessboard::canCastle(int x1, int y1, int x2, int y2) const {
@@ -245,6 +412,26 @@ bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
         return false;
     }
 
+    if (auto* pawnPtr = dynamic_cast<pawn*>(board[x1][y1].get())) {
+        if (enPassantTarget.first == x2 && enPassantTarget.second == y2 && 
+            abs(x2 - x1) == 1 && (blackTurn ? y2 == y1 - 1 : y2 == y1 + 1)) {
+        
+            if (!board[x2][blackTurn ? y2 + 1 : y2 - 1] || 
+                board[x2][blackTurn ? y2 + 1 : y2 - 1]->isBlack() == blackTurn) {
+                enPassantTarget = {-1, -1};
+                return false;
+            }
+            board[x2][blackTurn ? y2 + 1 : y2 - 1] = nullptr;
+        }
+    }
+
+    if (auto* pawnPtr = dynamic_cast<pawn*>(board[x2][y2].get())) {
+        if ((blackTurn && y2 == 7) || (!blackTurn && y2 == 0)) {
+        // Здесь лучше вызвать диалог выбора фигуры
+        board[x2][y2] = std::make_unique<queen>(blackTurn, x2, y2);
+        }
+    }   
+
 
     if (auto* kingPtr = dynamic_cast<king*>(board[x1][y1].get())) {
         if (abs(x2 - x1) == 2 && y1 == y2) {
@@ -265,7 +452,8 @@ bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
                 
                 switchTurn();
                 enPassantTarget = {-1, -1};
-                return false; 
+                
+                return true;
             }
         }
     }

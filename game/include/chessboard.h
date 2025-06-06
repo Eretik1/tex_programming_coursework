@@ -43,6 +43,10 @@ private:
     bool canCastle(int x1, int y1, int x2, int y2) const;
     bool isSquareUnderAttack(int x, int y, bool byBlack) const;
     bool hasLegalMoves(bool forBlack);
+    bool hasBlockingMoves(bool forBlack);
+    bool kingCanMove(int x, int y, bool isBlack);
+    bool canBlockOrCapture(bool forBlack, std::pair<int, int> kingPos);
+    void calculateAttackPath(int ax, int ay, int kx, int ky, std::vector<std::pair<int, int>>& path);
     bool blackTurn = false;
     std::pair<int, int> enPassantTarget = {-1, -1}; 
     bool gameOver = false;
