@@ -37,23 +37,23 @@ QLabel#errorLabel {
     font-size: 14px;
     margin: 0;
     
-    /* Центрирование без absolute позиции */
+    
     align-self: center;
     text-align: center;
     
-    /* Скрытие через прозрачность и нулевую высоту */
+   
     opacity: 0;
     max-height: 0;
     overflow: hidden;
     transition: all 0.3s ease;
     
-    /* Фиксированная максимальная ширина */
+    
     max-width: 250px;
     word-wrap: break-word;
 }
 
 QLabel#errorLabel.visible {
     opacity: 1;
-    max-height: 100px; /* Достаточно для 2-3 строк текста */
-    margin: 5px 0; /* Небольшой отступ при появлении */
+    max-height: 100px; 
+    margin: 5px 0; 
 }

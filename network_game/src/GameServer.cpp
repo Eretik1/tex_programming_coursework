@@ -28,7 +28,6 @@ void Server::readyRead() {
     QString message = QString::fromUtf8(data);
     qDebug() << "Received:" << message;
 
-    // Broadcast to all clients
     for (QTcpSocket *client : m_clients) {
         if (client != socket) {
             client->write(data);
