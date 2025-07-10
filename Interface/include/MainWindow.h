@@ -5,6 +5,8 @@
 #include "MainMenu.h"
 #include "ColorSelectionMenu.h"
 #include "ChessWidget.h"
+#include "IntermediateMenu.h"
+#include "IpInputMenu.h"
 
 class MainWindow : public QWidget
 {
@@ -18,6 +20,8 @@ private:
     MainMenu *mainMenu;
     ColorSelectionMenu *colorMenu;
     ChessWidget *chessWidget;
+    IntermediateMenu *intermediateMenu;
+    IpInputMenu *ipInputMenu;
     chessboard* createNewGameBoard();
     std::unique_ptr<chessboard> gameBoard;
 

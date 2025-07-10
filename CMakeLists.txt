@@ -9,8 +9,11 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui Network)
 
+qt_add_resources(QRC_FILES 
+    interface/styles/styles.qrc
+)
 
 set(SOURCE_FILES
     pieces/src/figure.cpp
@@ -25,6 +28,17 @@ set(SOURCE_FILES
     Interface/src/MainMenu.cpp
     Interface/src/ColorSelectionMenu.cpp
     Interface/src/MainWindow.cpp
+
+    interface/src/IpInputMenu.cpp
+    interface/include/IpInputMenu.h  
+    interface/src/IntermediateMenu.cpp
+    interface/include/IntermediateMenu.h  
+
+    network_game/src/GameClient.cpp
+    network_game/include/GameClient.h  
+    network_game/src/GameServer.cpp
+    network_game/include/GameServer.h
+
     main.cpp
 )
 
@@ -54,13 +68,26 @@ qt_generate_moc(
     ${CMAKE_CURRENT_BINARY_DIR}/moc_MainWindow.cpp
 )
 
+qt_generate_moc(
+    Interface/include/IntermediateMenu.h
+    ${CMAKE_CURRENT_BINARY_DIR}/moc_IntermediateMenu.cpp
+)
+
+qt_generate_moc(
+    Interface/include/IpInputMenu.h
+    ${CMAKE_CURRENT_BINARY_DIR}/moc_IpInputMenu.cpp
+)
+
 add_executable(coursework 
     ${SOURCE_FILES} 
     ${RESOURCE_FILES}
+    ${QRC_FILES}
     ${CMAKE_CURRENT_BINARY_DIR}/moc_ChessWidget.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/moc_MainMenu.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/moc_ColorSelectionMenu.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/moc_MainWindow.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/moc_IntermediateMenu.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/moc_IpInputMenu.cpp
 )
 
 target_include_directories(coursework PRIVATE
@@ -68,6 +95,7 @@ target_include_directories(coursework PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/pieces/include
     ${CMAKE_CURRENT_SOURCE_DIR}/game/include
     ${CMAKE_CURRENT_SOURCE_DIR}/Interface/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/network_game/include
     ${CMAKE_CURRENT_BINARY_DIR}  
 )
 
@@ -75,6 +103,7 @@ target_link_libraries(coursework PRIVATE
     Qt6::Widgets
     Qt6::Core
     Qt6::Gui
+    Qt6::Network
 )
 
 

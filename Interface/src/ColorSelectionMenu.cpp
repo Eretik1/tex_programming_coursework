@@ -1,4 +1,11 @@
 #include "..\\include\\ColorSelectionMenu.h"
+#include "..\\..\\network_game\\include\\GameServer.h"
+
+#include "..\\..\\network_game\\include\\GameServer.h"
+#include <QCoreApplication>
+#include <QDebug>
+#include <QTextStream>
+#include <iostream>
 
 ColorSelectionMenu::ColorSelectionMenu(QWidget *parent) : QWidget(parent) {
     btnWhite = new QPushButton("Белые");
@@ -55,7 +62,18 @@ ColorSelectionMenu::ColorSelectionMenu(QWidget *parent) : QWidget(parent) {
     this->setStyleSheet("background-color: #2d2d2d;");
 
     
-    connect(btnWhite, &QPushButton::clicked, [this]() { emit colorSelected(true); });
+    connect(btnWhite, &QPushButton::clicked, [this]() { 
+        Server server;
+        server.start(1234);
+        std::cout << "Server running. Type messages to broadcast (type 'exit' to quit):\n";
+        QString message;
+        while (true) {
+            QTextStream qtin(stdin);
+            QString message = qtin.readLine();
+            if (message == "exit") break;
+            server.sendMessage(message);
+        }
+    });
     connect(btnBlack, &QPushButton::clicked, [this]() { emit colorSelected(false); });
     connect(btnBack, &QPushButton::clicked, this, &ColorSelectionMenu::backRequested);
 }

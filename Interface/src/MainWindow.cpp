@@ -23,6 +23,8 @@ void MainWindow::initializeWidgets()
     mainMenu = new MainMenu();
     colorMenu = new ColorSelectionMenu();
     chessWidget = new ChessWidget();
+    intermediateMenu = new IntermediateMenu();
+    ipInputMenu = new IpInputMenu();
     
     chessWidget->setChessboard(gameBoard.get());
     chessWidget->setMinimumSize(600, 650);
@@ -30,6 +32,8 @@ void MainWindow::initializeWidgets()
     stackedWidget->addWidget(mainMenu);    
     stackedWidget->addWidget(colorMenu);   
     stackedWidget->addWidget(chessWidget); 
+    stackedWidget->addWidget(intermediateMenu);
+    stackedWidget->addWidget(ipInputMenu);
     
     stackedWidget->setCurrentIndex(0);
 }
@@ -40,16 +44,36 @@ void MainWindow::setupConnections()
     connect(mainMenu, &MainMenu::localGameRequested, this, [this]() {
         gameBoard = std::make_unique<chessboard>(); 
         chessWidget->setChessboard(gameBoard.get());
+        stackedWidget->setCurrentIndex(2);
+    });
+
+    connect(mainMenu, &MainMenu::onlineGameRequested, this, [this]() {
+        stackedWidget->setCurrentIndex(3);
+    });
+
+    connect(intermediateMenu, &IntermediateMenu::creatingRoomRequested, this, [this]() {
         stackedWidget->setCurrentIndex(1);
+    });
+
+    connect(intermediateMenu, &IntermediateMenu::connectionRoomRequested, this, [this]() {
+        stackedWidget->setCurrentIndex(4);
+    });
+
+    connect(intermediateMenu, &IntermediateMenu::backRequested, this, [this]() {
+        stackedWidget->setCurrentIndex(0);
     });
     
     connect(colorMenu, &ColorSelectionMenu::backRequested, this, [this]() {
         stackedWidget->setCurrentIndex(0);
     });
     
-    connect(colorMenu, &ColorSelectionMenu::colorSelected, this, [this](bool isWhite) {
-        qDebug() << "Selected color:" << (isWhite ? "White" : "Black");
-        stackedWidget->setCurrentIndex(2);
+    // connect(colorMenu, &ColorSelectionMenu::colorSelected, this, [this](bool isWhite) {
+    //     qDebug() << "Selected color:" << (isWhite ? "White" : "Black");
+    //     stackedWidget->setCurrentIndex(2);
+    // });
+
+    connect(ipInputMenu, &IpInputMenu::backRequested, this, [this]() {
+        stackedWidget->setCurrentIndex(3);
     });
     
     connect(chessWidget, &ChessWidget::cellSelected, this, [this](int x, int y) {
