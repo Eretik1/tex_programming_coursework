@@ -5,10 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
-# Находим Qt6
+
 find_package(Qt6 REQUIRED COMPONENTS Test Core5Compat)
 
-# Добавляем тестовый исполняемый файл
+
 add_executable(chess_tests
     test_chess.cpp
     ../game/src/chessboard.cpp
@@ -21,17 +21,16 @@ add_executable(chess_tests
     ../pieces/src/king.cpp
 )
 
-# Подключаем директории
+
 target_include_directories(chess_tests PRIVATE
     ../game/include
     ../pieces/include
 )
 
-# Подключаем библиотеки
+
 target_link_libraries(chess_tests PRIVATE
     Qt6::Test
 )
 
-# Добавляем тест в CTest
 enable_testing()
 add_test(NAME chess_tests COMMAND chess_tests)

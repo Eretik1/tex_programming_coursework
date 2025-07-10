@@ -4,14 +4,14 @@ project(coursework VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Настройки Qt
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui)
 
-# Явное указание исходных файлов в правильном порядке
+
 set(SOURCE_FILES
     pieces/src/figure.cpp
     pieces/src/pawn.cpp
@@ -28,12 +28,12 @@ set(SOURCE_FILES
     main.cpp
 )
 
-# Ресурсы
+
 qt_add_resources(RESOURCE_FILES
     Interface/resources/chess_resources.qrc
 )
 
-# Явная генерация moc-файлов
+
 qt_generate_moc(
     Interface/include/ChessWidget.h
     ${CMAKE_CURRENT_BINARY_DIR}/moc_ChessWidget.cpp
@@ -63,13 +63,12 @@ add_executable(coursework
     ${CMAKE_CURRENT_BINARY_DIR}/moc_MainWindow.cpp
 )
 
-# Подключение директорий
 target_include_directories(coursework PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/pieces/include
     ${CMAKE_CURRENT_SOURCE_DIR}/game/include
     ${CMAKE_CURRENT_SOURCE_DIR}/Interface/include
-    ${CMAKE_CURRENT_BINARY_DIR}  # Для moc-файлов
+    ${CMAKE_CURRENT_BINARY_DIR}  
 )
 
 target_link_libraries(coursework PRIVATE
@@ -78,7 +77,7 @@ target_link_libraries(coursework PRIVATE
     Qt6::Gui
 )
 
-# Копирование ресурсов
+
 add_custom_command(TARGET coursework POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/img
