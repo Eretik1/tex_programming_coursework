@@ -1,26 +1,17 @@
 #include "..\\include\\MainMenu.h"
 #include <QApplication>
+#include <QFile>
+#include <QStyle>
 
 MainMenu::MainMenu(QWidget *parent) : QWidget(parent) {
     btnLocalGame = new QPushButton("Локальная игра");
     btnOnlineGame = new QPushButton("Сетевая игра");
     btnQuit = new QPushButton("Выход");
 
-    
-    QString buttonStyle = "QPushButton {"
-                          "    background-color: #4a4a4a;"
-                          "    color: white;"
-                          "    border: none;"
-                          "    padding: 15px 32px;"
-                          "    text-align: center;"
-                          "    text-decoration: none;"
-                          "    font-size: 16px;"
-                          "    margin: 4px 2px;"
-                          "    border-radius: 8px;"
-                          "}"
-                          "QPushButton:hover {"
-                          "    background-color: #5a5a5a;"
-                          "}";
+    QFile styleFile(":/styles/styles.css");
+    styleFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString buttonStyle = QLatin1String(styleFile.readAll());
+    styleFile.close();
 
     btnLocalGame->setStyleSheet(buttonStyle);
     btnOnlineGame->setStyleSheet(buttonStyle);

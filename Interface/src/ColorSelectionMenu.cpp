@@ -6,28 +6,19 @@
 #include <QDebug>
 #include <QTextStream>
 #include <iostream>
+#include <QStyle>
+#include <QFile>
+
 
 ColorSelectionMenu::ColorSelectionMenu(QWidget *parent) : QWidget(parent) {
     btnWhite = new QPushButton("Белые");
     btnBlack = new QPushButton("Чёрные");
     btnBack = new QPushButton("Назад");
 
-    
-    QString buttonStyle = "QPushButton {"
-                         "    background-color: #4a4a4a;"
-                         "    color: white;"
-                         "    border: none;"
-                         "    padding: 15px 32px;"
-                         "    text-align: center;"
-                         "    text-decoration: none;"
-                         "    font-size: 16px;"
-                         "    margin: 4px 2px;"
-                         "    border-radius: 8px;"
-                         "}"
-                         "QPushButton:hover {"
-                         "    background-color: #5a5a5a;"
-                         "}";
-
+    QFile styleFile(":/styles/styles.css");
+    styleFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString buttonStyle = QLatin1String(styleFile.readAll());
+    styleFile.close();
     
     QString whiteButtonStyle = buttonStyle + 
                               "QPushButton {"
