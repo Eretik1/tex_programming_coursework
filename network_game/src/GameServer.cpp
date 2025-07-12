@@ -1,51 +1,42 @@
 #include "..\\include\\GameServer.h"
-Server::Server(QObject *parent) : QObject(parent), m_server(new QTcpServer(this)) {
-    connect(m_server, &QTcpServer::newConnection, this, &Server::newConnection);
-}
 
-bool Server::start(quint16 port) {
-    if (!m_server->listen(QHostAddress::Any, port)) {
-        qDebug() << "Server could not start:" << m_server->errorString();
-        return false;
+
+Server::Server(){
+    if(this->listen(QHostAddress::Any, 1234)){
+        qDebug() << "Server is running";
     }
-    qDebug() << "Server started on port" << port;
-    return true;
-}
-
-void Server::newConnection() {
-    QTcpSocket *socket = m_server->nextPendingConnection();
-    m_clients.append(socket);
-    connect(socket, &QTcpSocket::readyRead, this, &Server::readyRead);
-    connect(socket, &QTcpSocket::disconnected, this, &Server::disconnected);
-    qDebug() << "New client connected:" << socket->peerAddress().toString();
-}
-
-void Server::readyRead() {
-    QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
-    if (!socket) return;
-
-    QByteArray data = socket->readAll();
-    QString message = QString::fromUtf8(data);
-    qDebug() << "Received:" << message;
-
-    for (QTcpSocket *client : m_clients) {
-        if (client != socket) {
-            client->write(data);
-        }
+    else{
+        qDebug() << "Error when starting the server";
     }
 }
 
-void Server::disconnected() {
-    QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
-    if (!socket) return;
+void Server::incomingConnection(qintptr socketDescriptor){
+    socket->setSocketDescriptor(socketDescriptor);
+    connect(socket, &QTcpSocket::readyRead, this, &Server::slotReadyRead);
+    connect(socket, &QTcpSocket::disconnected, socket, &Server::deleteLater);
 
-    m_clients.removeAll(socket);
-    socket->deleteLater();
-    qDebug() << "Client disconnected";
+    qDebug() << "client is connected " << socketDescriptor;
 }
 
-void Server::sendMessage(const QString &message) {
-    for (QTcpSocket *client : m_clients) {
-        client->write(message.toUtf8());
+void Server::slotReadyRead(){
+    socket = (QTcpSocket*)sender();
+    QDataStream in(socket);
+    in.setVersion(QDataStream::Qt_6_0);
+    if(in.status() == QDataStream::Ok){
+        qDebug() << "Read...";
+        QString str;
+        in >> str;
+        qDebug() << str;
     }
+    else{
+        qDebug() << "Error when receiving message";
+    }
+}
+
+void Server::sendToClient(QString str){
+    data.clear();
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_6_0);
+    out << str;
+    socket->write(data);
 }

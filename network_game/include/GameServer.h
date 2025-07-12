@@ -4,19 +4,20 @@
 #include <QObject>
 #include <QDebug>
 
-class Server : public QObject {
+class Server : public QTcpServer{
     Q_OBJECT
-public:
-    explicit Server(QObject *parent = nullptr);
-    bool start(quint16 port);
-    void sendMessage(const QString &message);
 
-private slots:
-    void newConnection();
-    void readyRead();
-    void disconnected();
+public:
+    Server();
+    void sendToClient(QString str);
+
+    QTcpSocket *socket;
+
+public slots:
+    void incomingConnection(qintptr socketDescriptor);
+    void slotReadyRead();
 
 private:
-    QTcpServer *m_server;
-    QList<QTcpSocket*> m_clients;
+    QByteArray data;
+
 };

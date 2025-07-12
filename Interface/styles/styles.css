@@ -37,19 +37,16 @@ QLabel#errorLabel {
     font-size: 14px;
     margin: 0;
     
-    
-    align-self: center;
+    qproperty-alignment: 'AlignCenter';
     text-align: center;
     
-   
     opacity: 0;
     max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    
-    
+    qproperty-autoFillBackground: true;
+
+
     max-width: 250px;
-    word-wrap: break-word;
+    qproperty-wordWrap: true;
 }
 
 QLabel#errorLabel.visible {
