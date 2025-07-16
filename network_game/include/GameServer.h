@@ -1,23 +1,31 @@
 #pragma once
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QObject>
-#include <QDebug>
+#include <QVector>
 
 class Server : public QTcpServer{
     Q_OBJECT
 
 public:
-    Server();
-    void sendToClient(QString str);
-
+    Server(QObject *parent = nullptr);
+    ~Server();
+    bool startServer();
+    void stopServer();
+    void sendToClient(const QString &message);
     QTcpSocket *socket;
+
+private:
+    QVector<QTcpSocket*> sockets;
+    QByteArray data;
+    quint16 blockSize;
+
 
 public slots:
     void incomingConnection(qintptr socketDescriptor);
     void slotReadyRead();
 
-private:
-    QByteArray data;
+signals:
+    void newConnection();
+    void closeServer();
 
 };

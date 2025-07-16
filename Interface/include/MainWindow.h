@@ -7,6 +7,9 @@
 #include "ChessWidget.h"
 #include "IntermediateMenu.h"
 #include "IpInputMenu.h"
+#include "StandbyMenu.h"
+#include "..\\..\\network_game\\include\\GameServer.h"
+#include "..\\..\\network_game\\include\\GameClient.h"
 
 class MainWindow : public QWidget
 {
@@ -22,6 +25,9 @@ private:
     ChessWidget *chessWidget;
     IntermediateMenu *intermediateMenu;
     IpInputMenu *ipInputMenu;
+    StandbyMenu *standbyMenu;
+    Server *server;
+    Client *client;
     chessboard* createNewGameBoard();
     std::unique_ptr<chessboard> gameBoard;
 

@@ -1,13 +1,15 @@
-#include "..\\include\\IpInputMenu.h"
+#include "..\\include\\StandbyMenu.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTextStream>
 #include <iostream>
 
-IpInputMenu::IpInputMenu(QWidget *parent) : QWidget(parent){
+StandbyMenu::StandbyMenu(QWidget *parent) : QWidget(parent){
+    numberOfPlayers = 1;
+
     this->setStyleSheet("position: relative;");
 
-    ipInputLine = new QLineEdit();
+    numberMessage = new QLabel("Количество игроков 1/2");
 
     errorMessage = new QLabel();
     errorMessage->setObjectName("errorLabel");
@@ -16,7 +18,7 @@ IpInputMenu::IpInputMenu(QWidget *parent) : QWidget(parent){
     errorMessage->setWordWrap(true);
     errorMessage->setVisible(false);
 
-    btnIpConfirmation = new QPushButton("Подключиться"); 
+    startGame = new QPushButton("Начать игру"); 
     btnBack = new QPushButton("Назад");
 
     QFile styleFile(":/styles/styles.css");
@@ -25,24 +27,22 @@ IpInputMenu::IpInputMenu(QWidget *parent) : QWidget(parent){
     styleFile.close();
     this->setStyleSheet(styleSheet);
 
-    btnIpConfirmation->setStyleSheet(styleSheet);
-
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    layout->addWidget(ipInputLine);
+    layout->addWidget(numberMessage);
     layout->addWidget(errorMessage);
-    layout->addWidget(btnIpConfirmation);
+    layout->addWidget(startGame);
     layout->addWidget(btnBack);
     layout->setAlignment(Qt::AlignCenter);
     layout->setSpacing(20);
 
-    connect(btnIpConfirmation, &QPushButton::clicked, this, &IpInputMenu::IpCheck);
-    connect(btnBack, &QPushButton::clicked, this, &IpInputMenu::backRequested);
+    connect(startGame, &QPushButton::clicked, this, &StandbyMenu::IpCheckStart);
+    connect(btnBack, &QPushButton::clicked, this, [this]() { emit backRequested(IsServer); });
 }
 
-void IpInputMenu::IpCheck(){
-    if(ipInputLine->text().size() == 0){
-        errorMessage->setText("*Необходимо ввести IP");
+void StandbyMenu::IpCheckStart(){
+    if(numberOfPlayers == 1){
+        errorMessage->setText("*Необходимо дождаться второго игрока");
         errorMessage->setVisible(true);
         errorMessage->setProperty("class", "visible");
     
@@ -51,13 +51,14 @@ void IpInputMenu::IpCheck(){
         errorMessage->update();
     }
     else{
-        emit connection(ipInputLine->text());
-        errorMessage->setText("*Не удалось подключиться по данному IP");
-        errorMessage->setVisible(true);
-        errorMessage->setProperty("class", "visible");
-    
-        errorMessage->style()->unpolish(errorMessage);
-        errorMessage->style()->polish(errorMessage);
-        errorMessage->update();
+        qDebug() << "start game";
+    }
+}
+
+void StandbyMenu::connection(bool isServer){
+    if(!isServer){
+        numberMessage->setText("Количество игроков 2/2");
+        numberMessage->update();
+        numberOfPlayers = 2;
     }
 }

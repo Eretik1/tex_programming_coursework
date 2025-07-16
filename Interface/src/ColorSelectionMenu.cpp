@@ -1,7 +1,4 @@
 #include "..\\include\\ColorSelectionMenu.h"
-#include "..\\..\\network_game\\include\\GameServer.h"
-
-#include "..\\..\\network_game\\include\\GameServer.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTextStream>
@@ -53,9 +50,7 @@ ColorSelectionMenu::ColorSelectionMenu(QWidget *parent) : QWidget(parent) {
     this->setStyleSheet("background-color: #2d2d2d;");
 
     
-    connect(btnWhite, &QPushButton::clicked, [this]() { 
-        Server server;
-    });
+    connect(btnWhite, &QPushButton::clicked, [this]() { emit colorSelected(true); });
     connect(btnBlack, &QPushButton::clicked, [this]() { emit colorSelected(false); });
     connect(btnBack, &QPushButton::clicked, this, &ColorSelectionMenu::backRequested);
 }

@@ -5,15 +5,22 @@
 
 class Client : public QObject {
     Q_OBJECT
+
 public:
-    explicit Client(QObject *parent = nullptr);
+    Client(QObject *parent = nullptr);
+    ~Client();
     bool connectToServer(const QString &ip, quint16 port);
+    void sendToServer(const QString &message);
+    void disconnectFromHost();
+    quint16 blockSize;
 
 public slots:
-    void sendMessage(const QString &message);
-    void readyRead();
-    void disconnected();
+    void slotReadyRead();
 
 private:
-    QTcpSocket *m_socket;
+    QByteArray data;
+    QTcpSocket *socket;
+
+signals:
+    void disconnect();
 };

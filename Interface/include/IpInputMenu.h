@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QFile>
 #include <QStyle>
+#include "..\\..\\network_game\\include\\GameClient.h"
 
 class IpInputMenu : public QWidget {
     Q_OBJECT
@@ -16,12 +17,14 @@ public:
 
 signals:
     void backRequested();    
+    void connection(QString IP); 
 
 private:
     QLineEdit *ipInputLine;
     QLabel *errorMessage;
     QPushButton *btnIpConfirmation;
     QPushButton *btnBack;
+    Client *client;
 
     void IpCheck();
 };

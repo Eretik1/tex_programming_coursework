@@ -25,6 +25,7 @@ void MainWindow::initializeWidgets()
     chessWidget = new ChessWidget();
     intermediateMenu = new IntermediateMenu();
     ipInputMenu = new IpInputMenu();
+    standbyMenu = new StandbyMenu();
     
     chessWidget->setChessboard(gameBoard.get());
     chessWidget->setMinimumSize(600, 650);
@@ -34,6 +35,7 @@ void MainWindow::initializeWidgets()
     stackedWidget->addWidget(chessWidget); 
     stackedWidget->addWidget(intermediateMenu);
     stackedWidget->addWidget(ipInputMenu);
+    stackedWidget->addWidget(standbyMenu);   
     
     stackedWidget->setCurrentIndex(0);
 }
@@ -67,12 +69,45 @@ void MainWindow::setupConnections()
         stackedWidget->setCurrentIndex(0);
     });
     
-    // connect(colorMenu, &ColorSelectionMenu::colorSelected, this, [this](bool isWhite) {
-    //     qDebug() << "Selected color:" << (isWhite ? "White" : "Black");
-    //     stackedWidget->setCurrentIndex(2);
-    // });
+    connect(colorMenu, &ColorSelectionMenu::colorSelected, this, [this](bool isWhite) {
+        stackedWidget->setCurrentIndex(5);
+        standbyMenu->connection(true);
+        server = new Server(this);
+        if (!server->startServer()) {
+            qDebug() << "Ошибка, не удалось запустить сервер";
+        }
+        connect(server, &Server::newConnection, this, [this](){
+            standbyMenu->connection(false);
+        });
+    });
 
     connect(ipInputMenu, &IpInputMenu::backRequested, this, [this]() {
+        stackedWidget->setCurrentIndex(3);
+    });
+
+    connect(ipInputMenu, &IpInputMenu::connection, this, [this](QString IP) {
+        client = new Client(this);
+        if(client->connectToServer(IP, 12345)){
+            stackedWidget->setCurrentIndex(5);
+            standbyMenu->connection(false);
+            QString message = "Hello";
+            client->sendToServer(message);
+            connect(client, &Client::disconnect, this, [this](){
+                qDebug() << "out";
+                standbyMenu->backRequested(false);
+            });
+        }
+    });
+
+    connect(standbyMenu, &StandbyMenu::backRequested, this, [this](bool isServer) {
+        if(isServer){
+            server->stopServer();
+        }
+        else{
+            client->disconnectFromHost(); 
+            client->deleteLater();
+            client = nullptr;
+        }
         stackedWidget->setCurrentIndex(3);
     });
     

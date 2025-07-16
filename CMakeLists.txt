@@ -33,6 +33,8 @@ set(SOURCE_FILES
     interface/include/IpInputMenu.h  
     interface/src/IntermediateMenu.cpp
     interface/include/IntermediateMenu.h  
+    interface/src/StandbyMenu.cpp
+    interface/include/StandbyMenu.h  
 
     network_game/src/GameClient.cpp
     network_game/include/GameClient.h  
@@ -78,6 +80,11 @@ qt_generate_moc(
     ${CMAKE_CURRENT_BINARY_DIR}/moc_IpInputMenu.cpp
 )
 
+qt_generate_moc(
+    Interface/include/StandbyMenu.h
+    ${CMAKE_CURRENT_BINARY_DIR}/moc_StandbyMenu.cpp
+)
+
 add_executable(coursework 
     ${SOURCE_FILES} 
     ${RESOURCE_FILES}
@@ -88,6 +95,7 @@ add_executable(coursework
     ${CMAKE_CURRENT_BINARY_DIR}/moc_MainWindow.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/moc_IntermediateMenu.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/moc_IpInputMenu.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/moc_StandbyMenu.cpp
 )
 
 target_include_directories(coursework PRIVATE

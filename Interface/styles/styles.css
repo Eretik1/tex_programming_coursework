@@ -54,3 +54,18 @@ QLabel#errorLabel.visible {
     max-height: 100px; 
     margin: 5px 0; 
 }
+
+QLabel {
+    background-color: #4a4a4a;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    margin: 0;
+    
+    qproperty-alignment: 'AlignCenter';
+    text-align: center;
+
+    max-width: 250px;
+    qproperty-wordWrap: true;
+}
