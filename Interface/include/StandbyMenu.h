@@ -13,12 +13,15 @@ class StandbyMenu : public QWidget {
 public:
     StandbyMenu(QWidget *parent = nullptr);
     ~StandbyMenu() override = default;
+    bool IsServer;
 
 signals:
     void backRequested(bool isServer); 
+    void start(); 
     
 public slots:
     void connection(bool isServer);
+    void disconnection();
 
 private:
     QLabel *numberMessage;
@@ -26,7 +29,6 @@ private:
     QPushButton *startGame;
     QPushButton *btnBack;
     int numberOfPlayers;
-    bool IsServer;
 
     void IpCheckStart();
 };

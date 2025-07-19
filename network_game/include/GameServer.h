@@ -15,6 +15,8 @@ public:
     QTcpSocket *socket;
 
 private:
+    void checkingMessages(const QString &message);
+
     QVector<QTcpSocket*> sockets;
     QByteArray data;
     quint16 blockSize;
@@ -26,6 +28,8 @@ public slots:
 
 signals:
     void newConnection();
+    void clientDisconnected();
     void closeServer();
-
+    void start();
+    void move(const QString &message);
 };

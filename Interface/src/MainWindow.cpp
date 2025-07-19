@@ -15,9 +15,6 @@ MainWindow::MainWindow(QWidget *parent)
     setLayout(mainLayout);
 }
 
-
-
-
 void MainWindow::initializeWidgets()
 {
     mainMenu = new MainMenu();
@@ -79,6 +76,15 @@ void MainWindow::setupConnections()
         connect(server, &Server::newConnection, this, [this](){
             standbyMenu->connection(false);
         });
+        connect(server, &Server::clientDisconnected, this, [this](){
+            standbyMenu->disconnection();
+        });
+        connect(server, &Server::start, this, [this](){
+            stackedWidget->setCurrentIndex(2);
+        });
+        connect(server, &Server::move, this, [this](const QString &massege){
+            chessWidget->networkImpact(massege);
+        });
     });
 
     connect(ipInputMenu, &IpInputMenu::backRequested, this, [this]() {
@@ -90,25 +96,44 @@ void MainWindow::setupConnections()
         if(client->connectToServer(IP, 12345)){
             stackedWidget->setCurrentIndex(5);
             standbyMenu->connection(false);
-            QString message = "Hello";
-            client->sendToServer(message);
+            standbyMenu->IsServer = false;
             connect(client, &Client::disconnect, this, [this](){
                 qDebug() << "out";
                 standbyMenu->backRequested(false);
+            });
+            connect(client, &Client::start, this, [this](){
+                stackedWidget->setCurrentIndex(2);
+            });
+            connect(client, &Client::move, this, [this](const QString &massege){
+                chessWidget->networkImpact(massege);
             });
         }
     });
 
     connect(standbyMenu, &StandbyMenu::backRequested, this, [this](bool isServer) {
+        qDebug() << "out " << isServer;
         if(isServer){
             server->stopServer();
         }
         else{
-            client->disconnectFromHost(); 
+            qDebug() << "out client";
+            disconnect(client, &Client::disconnect, this, nullptr);
+            client->disconnectToServer();
             client->deleteLater();
             client = nullptr;
         }
         stackedWidget->setCurrentIndex(3);
+    });
+
+    connect(standbyMenu, &StandbyMenu::start, this, [this]() {
+        stackedWidget->setCurrentIndex(2);
+        QString massege = "START";
+        if(server != nullptr){
+            server->sendToClient(massege);
+        }
+        else if(client != nullptr){
+            client->sendToServer(massege);
+        }
     });
     
     connect(chessWidget, &ChessWidget::cellSelected, this, [this](int x, int y) {
@@ -118,6 +143,15 @@ void MainWindow::setupConnections()
     connect(chessWidget, &ChessWidget::gameEndRequested, this, [this]() {
         gameBoard.reset(); 
         stackedWidget->setCurrentWidget(mainMenu);
+    });
+
+    connect(chessWidget, &ChessWidget::move, this, [this](const QString &massege) {
+        if(server != nullptr){
+            server->sendToClient(massege);
+        }
+        else if(client != nullptr){
+            client->sendToServer(massege);
+        }
     });
 }
 

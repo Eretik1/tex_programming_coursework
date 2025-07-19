@@ -240,6 +240,8 @@ void ChessWidget::mousePressEvent(QMouseEvent* event) {
                     if (board[m_selectedX][m_selectedY]->move(x, y, board)) {
                         m_board->moveSquare(m_selectedX, m_selectedY, x, y);
                         qDebug() << "Move successful!";
+                        QString massege = createMoveString(m_selectedX, m_selectedY, x, y);
+                        emit move(massege);
                     } else {
                         qDebug() << "Invalid move!";
                     }
@@ -262,7 +264,6 @@ void ChessWidget::mousePressEvent(QMouseEvent* event) {
                     qDebug() << "Can't select - wrong color or empty";
                 }
             }
-            
             update();  
         }
     }
@@ -336,4 +337,29 @@ void ChessWidget::drawKingHighlight(QPainter& painter) {
 
 chessboard* ChessWidget::getChessboard() {
     return m_board;
+}
+
+QString ChessWidget::createMoveString(int x1, int y1, int x2, int y2){
+    return QString("MOVE%1%2%3%4").arg(x1).arg(y1).arg(x2).arg(y2);
+}
+
+void ChessWidget::parseMoveString(const QString &moveStr, int &x1, int &y1, int &x2, int &y2) {
+    QRegularExpression regex("^MOVE(\\d+)(\\d+)(\\d+)(\\d+)$");
+    QRegularExpressionMatch match = regex.match(moveStr);
+
+    if (match.hasMatch()) {
+        x1 = match.captured(1).toInt();
+        y1 = match.captured(2).toInt();
+        x2 = match.captured(3).toInt();
+        y2 = match.captured(4).toInt();
+    } else {
+        throw std::invalid_argument("Invalid MOVE string format");
+    }
+}
+
+void ChessWidget::networkImpact(const QString &moveStr){
+    int X1, Y1, X2, Y2;
+    parseMoveString(moveStr, X1, Y1, X2, Y2);
+    m_board->moveSquare(X1, Y1, X2, Y2);
+    update();  
 }

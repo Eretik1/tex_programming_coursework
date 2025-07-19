@@ -9,18 +9,22 @@ class Client : public QObject {
 public:
     Client(QObject *parent = nullptr);
     ~Client();
+    void disconnectToServer();
     bool connectToServer(const QString &ip, quint16 port);
     void sendToServer(const QString &message);
-    void disconnectFromHost();
     quint16 blockSize;
 
 public slots:
     void slotReadyRead();
 
 private:
+    void checkingMessages(const QString &message);
+
     QByteArray data;
     QTcpSocket *socket;
 
 signals:
     void disconnect();
+    void start();
+    void move(const QString &message);
 };

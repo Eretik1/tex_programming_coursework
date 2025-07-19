@@ -37,7 +37,9 @@ StandbyMenu::StandbyMenu(QWidget *parent) : QWidget(parent){
     layout->setSpacing(20);
 
     connect(startGame, &QPushButton::clicked, this, &StandbyMenu::IpCheckStart);
-    connect(btnBack, &QPushButton::clicked, this, [this]() { emit backRequested(IsServer); });
+    connect(btnBack, &QPushButton::clicked, this, [this]() { 
+        qDebug() << "out " << IsServer;
+        emit backRequested(IsServer); });
 }
 
 void StandbyMenu::IpCheckStart(){
@@ -51,7 +53,7 @@ void StandbyMenu::IpCheckStart(){
         errorMessage->update();
     }
     else{
-        qDebug() << "start game";
+        emit start(); 
     }
 }
 
@@ -61,4 +63,10 @@ void StandbyMenu::connection(bool isServer){
         numberMessage->update();
         numberOfPlayers = 2;
     }
+}
+
+void StandbyMenu::disconnection(){
+    numberMessage->setText("Количество игроков 1/2");
+    numberMessage->update();
+    numberOfPlayers = 1;
 }

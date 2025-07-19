@@ -6,6 +6,7 @@ Server::Server(QObject *parent) : QTcpServer(parent){
 }
 
 Server::~Server(){
+    stopServer();
     qDebug() << "server deleted";
 }
 
@@ -23,6 +24,7 @@ void Server::incomingConnection(qintptr socketDescriptor){
     socket->setSocketDescriptor(socketDescriptor);
     connect(socket, &QTcpSocket::readyRead, this, &Server::slotReadyRead);
     connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
+    connect(socket, &QTcpSocket::disconnected, this, [this](){ emit clientDisconnected();});
     sockets.append(socket);
     
     emit newConnection();
@@ -49,10 +51,9 @@ void Server::slotReadyRead(){
             in >> str;
             blockSize = 0;
             qDebug() << str;
+            this->checkingMessages(str);
             break;
         }
-        QString massege = "Hello";
-        this->sendToClient(massege);
     }
     else{
         qDebug() << "error reading message";
@@ -69,12 +70,34 @@ void Server::sendToClient(const QString &message) {
     qDebug() << "message sent";
 }
 
-void Server::stopServer(){
-    if(sockets.size() != 0){
-        socket->disconnectFromHost();
+void Server::stopServer() {
+    for (QTcpSocket* socket : qAsConst(sockets)) {
+        if (socket && socket->state() == QAbstractSocket::ConnectedState) {
+            disconnect(socket, &QTcpSocket::disconnected, this, &Server::clientDisconnected);
+            socket->disconnectFromHost();
+            
+            if (socket->state() != QAbstractSocket::UnconnectedState) {
+                socket->waitForDisconnected(500); 
+            }
+            
+            socket->deleteLater();
+        }
     }
-    sockets.clear();
-    this->close();
+    sockets.clear(); 
+
+    if (this->isListening()) {
+        this->close();
+    }
+
+    qDebug() << "Server stopped successfully";
     emit closeServer();
-    qDebug() << "close server";
-};
+}
+
+void Server::checkingMessages(const QString &message){
+    if(message == "START"){
+        emit start();
+    }
+    if(message.indexOf("MOVE") != -1){
+        emit move(message);
+    }
+}

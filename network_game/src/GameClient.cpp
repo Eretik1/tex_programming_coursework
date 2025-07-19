@@ -6,8 +6,7 @@ Client::Client(QObject *parent) : QObject(parent) {
     connect(socket, &QTcpSocket::readyRead, this, &Client::slotReadyRead);
     connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
     connect(socket, &QTcpSocket::disconnected, this, [this](){
-        emit disconnect();
-        qDebug() << "disconnect from the server";
+        this->disconnectToServer();
     });
     blockSize = 0;
 }
@@ -45,6 +44,7 @@ void Client::slotReadyRead() {
             in >> str;
             blockSize = 0;
             qDebug() << str;
+            this->checkingMessages(str);
             break;
         }
     }
@@ -63,11 +63,22 @@ void Client::sendToServer(const QString &message) {
     qDebug() << "message sent";
 }
 
-void Client::disconnectFromHost() {
-    if(socket && socket->state() == QAbstractSocket::ConnectedState) {
-        socket->disconnectFromHost();
-        if(socket->state() != QAbstractSocket::UnconnectedState) {
-            socket->waitForDisconnected();
+void Client::disconnectToServer(){
+    if (socket && socket->state() == QAbstractSocket::ConnectedState) {
+        socket->disconnectFromHost();  
+        if (socket->state() != QAbstractSocket::UnconnectedState) {
+            socket->waitForDisconnected(1000);
         }
+    }
+    emit disconnect();
+    qDebug() << "disconnect from the server";
+}
+
+void Client::checkingMessages(const QString &message){
+    if(message == "START"){
+        emit start();
+    }
+    if(message.indexOf("MOVE") != -1){
+        emit move(message);
     }
 }

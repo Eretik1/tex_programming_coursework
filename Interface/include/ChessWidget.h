@@ -2,6 +2,9 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QPushButton>  
+#include <QString>
+#include <QStringList>
+#include <QRegularExpression>
 #include "../../game/include/chessboard.h"
 
 class ChessWidget : public QWidget {
@@ -10,11 +13,13 @@ public:
     explicit ChessWidget(QWidget *parent = nullptr);
     ~ChessWidget() override = default;
     void setChessboard(chessboard* board);
+    void networkImpact(const QString &moveStr);
     chessboard* getChessboard();
 
 signals:  
     void cellSelected(int x, int y);
     void gameEndRequested();
+    void move(const QString &massege);
     
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -40,4 +45,6 @@ private:
     void loadPieceImages();
     void drawKingHighlight(QPainter& painter);
     void setupUi();
+    QString createMoveString(int x1, int y1, int x2, int y2);
+    void parseMoveString(const QString &moveStr, int &x1, int &y1, int &x2, int &y2);
 };

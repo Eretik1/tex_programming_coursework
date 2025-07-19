@@ -26,8 +26,8 @@ private:
     IntermediateMenu *intermediateMenu;
     IpInputMenu *ipInputMenu;
     StandbyMenu *standbyMenu;
-    Server *server;
-    Client *client;
+    Server *server = nullptr;
+    Client *client = nullptr;
     chessboard* createNewGameBoard();
     std::unique_ptr<chessboard> gameBoard;
 
