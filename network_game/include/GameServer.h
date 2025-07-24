@@ -30,6 +30,7 @@ signals:
     void newConnection();
     void clientDisconnected();
     void closeServer();
-    void start();
+    void start(const QString &message);
     void move(const QString &message);
+    void gameOver(const QString &message);
 };

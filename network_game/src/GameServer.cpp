@@ -94,10 +94,13 @@ void Server::stopServer() {
 }
 
 void Server::checkingMessages(const QString &message){
-    if(message == "START"){
-        emit start();
+    if(message.indexOf("START") != -1){
+        emit start(message);
     }
     if(message.indexOf("MOVE") != -1){
         emit move(message);
+    }
+    if(message.indexOf("SURRENDERED") != -1){
+        emit gameOver(message);
     }
 }

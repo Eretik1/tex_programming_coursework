@@ -171,7 +171,7 @@ void ChessWidget::drawCoordinates(QPainter& painter) {
 
     QString statusText;
     if (m_board->isGameOver()) {
-        statusText = QString::fromStdString(m_board->getGameResult());
+        statusText = m_board->getGameResult();
         painter.setFont(QFont("Arial", 16, QFont::Bold));
         painter.setPen(Qt::red);
     }  
@@ -234,7 +234,8 @@ void ChessWidget::mousePressEvent(QMouseEvent* event) {
                 
                 
                 if (board[m_selectedX][m_selectedY] && 
-                    board[m_selectedX][m_selectedY]->isBlack() == m_board->isBlackTurn()) {
+                    board[m_selectedX][m_selectedY]->isBlack() == m_board->isBlackTurn()
+                    && (isNetwork ? (m_board->isBlackTurn() != IsWhite) : true)) {
                     
                     
                     if (board[m_selectedX][m_selectedY]->move(x, y, board)) {
@@ -362,4 +363,28 @@ void ChessWidget::networkImpact(const QString &moveStr){
     parseMoveString(moveStr, X1, Y1, X2, Y2);
     m_board->moveSquare(X1, Y1, X2, Y2);
     update();  
+}
+
+QString ChessWidget::getCopyRow(){
+    return m_board->getCopyRow();
+}
+
+void ChessWidget::setRow(const QString &massege){
+    m_board->setRow(massege);
+}
+
+void ChessWidget::IsNetwork(){
+    isNetwork = true;
+}
+
+void ChessWidget::setColor(bool isWhite){
+    this->IsWhite = isWhite;
+}
+
+bool ChessWidget::getColor(){
+    return IsWhite;
+}
+
+QString ChessWidget::getGameResult(){
+    return m_board->getGameResult();
 }

@@ -15,6 +15,12 @@ public:
     void setChessboard(chessboard* board);
     void networkImpact(const QString &moveStr);
     chessboard* getChessboard();
+    QString getCopyRow();
+    void setRow(const QString &massege);
+    void IsNetwork();
+    void setColor(bool isWhite);
+    bool getColor();
+    QString getGameResult();
 
 signals:  
     void cellSelected(int x, int y);
@@ -36,6 +42,8 @@ private:
     QRect m_buttonRect;  
     QMap<QString, QPixmap> pieceImages;
     QPushButton* m_endGameButton;
+    bool isNetwork = false;
+    bool IsWhite;
 
     void drawChessboard(QPainter& painter);
     void drawPieces(QPainter& painter);

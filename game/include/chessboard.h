@@ -1,4 +1,5 @@
 #pragma once
+#include <QWidget>
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -16,6 +17,7 @@
 #include "../../pieces/include/king.h"
 
 class chessboard {
+
 public:
     chessboard();
     virtual ~chessboard() = default;
@@ -34,9 +36,9 @@ public:
     bool isKingInCheck(bool isBlack) const;
     std::pair<int, int> findKing(bool isBlack) const;
     bool isGameOver() const;
-    std::string getGameResult() const;
-    
-
+    QString getGameResult() const;
+    QString getCopyRow();
+    void setRow(const QString &massege);
 
 private:
     std::vector<std::vector<std::unique_ptr<figure>>> board;
@@ -50,5 +52,9 @@ private:
     bool blackTurn = false;
     std::pair<int, int> enPassantTarget = {-1, -1}; 
     bool gameOver = false;
-    std::string gameResult;
+    QString gameResult;
+    QString strCopyRow;
+
+signals: 
+    void positionFigures(const QString &strCopyRow);
 };

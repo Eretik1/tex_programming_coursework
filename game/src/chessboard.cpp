@@ -1,6 +1,8 @@
 #include "../include/chessboard.h"
 #include <random>
 #include <algorithm>
+#include <QDebug>
+#include <sstream>
 
 chessboard::chessboard() {
     board.resize(8);
@@ -328,6 +330,9 @@ bool chessboard::canCastle(int x1, int y1, int x2, int y2) const {
 
 void chessboard::setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row) {
 
+    std::vector<std::string> copyRow(8);
+    strCopyRow = "";
+
     for (int x = 0; x < 8; ++x) {
         board[x][row] = nullptr;
     }
@@ -335,6 +340,8 @@ void chessboard::setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row) 
 
     addFigure(0, row, std::make_unique<castle>(isWhite, 0, row));
     addFigure(7, row, std::make_unique<castle>(isWhite, 7, row));
+    copyRow[0] = "CASTLE";
+    copyRow[7] = "CASTLE";
 
     enum PieceType { QUEEN, KNIGHT, BISHOP };
     std::vector<PieceType> middlePieces = {QUEEN, KNIGHT, BISHOP, KNIGHT, BISHOP};
@@ -345,12 +352,15 @@ void chessboard::setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row) 
         switch (middlePieces[i]) {
             case QUEEN:  
                 addFigure(x, row, std::make_unique<queen>(isWhite, x, row)); 
+                copyRow[x] = "QUEEN";
                 break;
             case KNIGHT: 
                 addFigure(x, row, std::make_unique<knight>(isWhite, x, row)); 
+                copyRow[x] = "KNIGHT";
                 break;
             case BISHOP: 
                 addFigure(x, row, std::make_unique<bishop>(isWhite, x, row)); 
+                copyRow[x] = "BISHOP";
                 break;
         }
     }
@@ -358,8 +368,13 @@ void chessboard::setupFisherRandomRow(std::mt19937& gen, bool isWhite, int row) 
     for (int x = 1; x < 7; ++x) {
         if (!board[x][row]) {
             addFigure(x, row, std::make_unique<king>(isWhite, x, row));
+            copyRow[x] = "KING";
             break;
         }
+    }
+
+    for(int i = 0; i < 8; i++){
+        strCopyRow += "_" + copyRow[i];
     }
     
     bool lightBishop = false, darkBishop = false;
@@ -423,7 +438,7 @@ void chessboard::setupInitialPosition() {
 
 bool chessboard::moveSquare(int x1, int y1, int x2, int y2) {
     if (gameOver) {
-        std::cout << "Игра окончена. " << gameResult << std::endl;
+        qDebug() << gameResult;
         return false;
     }
 
@@ -551,10 +566,47 @@ std::pair<int, int> chessboard::findKing(bool isBlack) const {
 }
 
 bool chessboard::isGameOver() const {
+    qDebug() << "Game over" << gameOver;
     return gameOver;
 }
 
-std::string chessboard::getGameResult() const {
+QString chessboard::getGameResult() const {
     return gameResult;
 }
 
+QString chessboard::getCopyRow(){
+    return strCopyRow;
+};
+
+void chessboard::setRow(const QString &massege) {
+    std::vector<std::string> row;
+    
+    std::string messageStr = massege.toStdString();
+    
+    std::istringstream iss{messageStr};
+    std::string token;
+    
+    while (std::getline(iss, token, '_')) {
+        row.push_back(token);
+    }
+    
+    for (int i = 2; i < row.size(); i++) {
+        if(row[i] == "CASTLE"){
+            addFigure(8 - i, 0, std::make_unique<castle>(false, 8 - i, 0));
+        }
+        else if(row[i] == "BISHOP"){
+            addFigure(8 - i, 0, std::make_unique<bishop>(false, 8 - i, 0));
+        }
+        else if(row[i] == "KNIGHT"){
+            addFigure(8 - i, 0, std::make_unique<knight>(false, 8 - i, 0));
+        }
+        else if(row[i] == "QUEEN"){
+            addFigure(8 - i, 0, std::make_unique<queen>(false, 8 - i, 0));
+        }
+        else if(row[i] == "KING"){
+            addFigure(8 - i, 0, std::make_unique<king>(false, 8 - i, 0));
+        }
+        qDebug() << row[i];
+    }
+    setupMirroredRow(true, 7);  
+}

@@ -8,6 +8,7 @@
 #include "IntermediateMenu.h"
 #include "IpInputMenu.h"
 #include "StandbyMenu.h"
+#include "ResultsMenu.h"
 #include "..\\..\\network_game\\include\\GameServer.h"
 #include "..\\..\\network_game\\include\\GameClient.h"
 
@@ -26,10 +27,12 @@ private:
     IntermediateMenu *intermediateMenu;
     IpInputMenu *ipInputMenu;
     StandbyMenu *standbyMenu;
+    ResultsMenu *resultsMenu;
     Server *server = nullptr;
     Client *client = nullptr;
     chessboard* createNewGameBoard();
     std::unique_ptr<chessboard> gameBoard;
+    bool IsWhite;
 
     void setupConnections();
     void initializeWidgets();

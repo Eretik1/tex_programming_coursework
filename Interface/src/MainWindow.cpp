@@ -23,6 +23,7 @@ void MainWindow::initializeWidgets()
     intermediateMenu = new IntermediateMenu();
     ipInputMenu = new IpInputMenu();
     standbyMenu = new StandbyMenu();
+    resultsMenu = new ResultsMenu();
     
     chessWidget->setChessboard(gameBoard.get());
     chessWidget->setMinimumSize(600, 650);
@@ -33,6 +34,7 @@ void MainWindow::initializeWidgets()
     stackedWidget->addWidget(intermediateMenu);
     stackedWidget->addWidget(ipInputMenu);
     stackedWidget->addWidget(standbyMenu);   
+    stackedWidget->addWidget(resultsMenu); 
     
     stackedWidget->setCurrentIndex(0);
 }
@@ -70,20 +72,30 @@ void MainWindow::setupConnections()
         stackedWidget->setCurrentIndex(5);
         standbyMenu->connection(true);
         server = new Server(this);
+        chessWidget->setColor(isWhite);
+        IsWhite = isWhite;
+
         if (!server->startServer()) {
             qDebug() << "Ошибка, не удалось запустить сервер";
         }
         connect(server, &Server::newConnection, this, [this](){
             standbyMenu->connection(false);
+            server->sendToClient(IsWhite ? "COLOR_WHITE" : "COLOR_BLACK");
         });
         connect(server, &Server::clientDisconnected, this, [this](){
             standbyMenu->disconnection();
         });
-        connect(server, &Server::start, this, [this](){
+        connect(server, &Server::start, this, [this](const QString &message){
+            chessWidget->IsNetwork();
+            chessWidget->setRow(message);
             stackedWidget->setCurrentIndex(2);
         });
         connect(server, &Server::move, this, [this](const QString &massege){
             chessWidget->networkImpact(massege);
+        });
+        connect(server, &Server::gameOver, this, [this](const QString &massege){
+            resultsMenu->setResults(massege);
+            stackedWidget->setCurrentIndex(6);
         });
     });
 
@@ -101,11 +113,20 @@ void MainWindow::setupConnections()
                 qDebug() << "out";
                 standbyMenu->backRequested(false);
             });
-            connect(client, &Client::start, this, [this](){
+            connect(client, &Client::start, this, [this](const QString &message){
+                chessWidget->IsNetwork();
+                chessWidget->setRow(message);
                 stackedWidget->setCurrentIndex(2);
             });
             connect(client, &Client::move, this, [this](const QString &massege){
                 chessWidget->networkImpact(massege);
+            });
+            connect(client, &Client::setColor, this, [this](const QString &massege){
+                (massege.indexOf("WHITE") != -1) ? chessWidget->setColor(false) : chessWidget->setColor(true);
+            });
+            connect(client, &Client::gameOver, this, [this](const QString &massege){
+                resultsMenu->setResults(massege);
+                stackedWidget->setCurrentIndex(6);
             });
         }
     });
@@ -127,7 +148,9 @@ void MainWindow::setupConnections()
 
     connect(standbyMenu, &StandbyMenu::start, this, [this]() {
         stackedWidget->setCurrentIndex(2);
-        QString massege = "START";
+        chessWidget->IsNetwork();
+        QString CopyRow = chessWidget->getCopyRow();
+        QString massege = "START" + CopyRow;
         if(server != nullptr){
             server->sendToClient(massege);
         }
@@ -141,6 +164,22 @@ void MainWindow::setupConnections()
     });
 
     connect(chessWidget, &ChessWidget::gameEndRequested, this, [this]() {
+        if(chessWidget->getGameResult() == ""){
+            qDebug() << "game not over";
+            QString massege;
+            if(chessWidget->getColor()){
+                massege = "WHITES_SURRENDERED";
+            }
+            else{
+                massege = "BLACK_SURRENDERED";
+            }
+            if(server != nullptr){
+                server->sendToClient(massege);
+            }
+            else if(client != nullptr){
+                client->sendToServer(massege);
+            }
+        }
         gameBoard.reset(); 
         stackedWidget->setCurrentWidget(mainMenu);
     });
@@ -152,6 +191,10 @@ void MainWindow::setupConnections()
         else if(client != nullptr){
             client->sendToServer(massege);
         }
+    });
+
+    connect(resultsMenu, &ResultsMenu::backRequested, this, [this]() {
+        stackedWidget->setCurrentIndex(0);
     });
 }
 

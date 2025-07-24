@@ -25,6 +25,8 @@ private:
 
 signals:
     void disconnect();
-    void start();
+    void start(const QString &message);
     void move(const QString &message);
+    void setColor(const QString &message);
+    void gameOver(const QString &message);
 };
